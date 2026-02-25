@@ -1,99 +1,74 @@
 // Main game application with score tracking and display integration
 
-// Game state variables
-let scores = {}; // Object to hold player scores, e.g., { player1: [10, 20], player2: [15, 25] }
-let currentRound = 1;
-let gameOver = false;
-
-// DOM elements
-const scoreDisplay = document.getElementById('score-display');
+// Data model: per-round structure
+let rounds = [];
+let currentRoundNumber = 1;
 
 // Function to update score display
 function updateScoreDisplay() {
-  if (!scoreDisplay) return;
+  // Update score rows (current rounds table)
+  let rowsHtml = '';
+  rounds.forEach(round => {
+    const roundClass = round.round === currentRoundNumber ? 'current-round' : '';
+    rowsHtml += `<div class="score-row ${roundClass}">`;
+    rowsHtml += `<div class="score-cell">Round ${round.round}</div>`;
+    rowsHtml += `<div class="score-cell">${round.p1}</div>`;
+    rowsHtml += `<div class="score-cell">${round.p2}</div>`;
+    rowsHtml += `<div class="score-cell">${round.p3}</div>`;
+    rowsHtml += `<div class="score-cell">${round.p4}</div>`;
+    const total = round.p1 + round.p2 + round.p3 + round.p4;
+    rowsHtml += `<div class="score-cell">${total}</div>`;
+    rowsHtml += '</div>';
+  });
+  document.getElementById('score-rows').innerHTML = rowsHtml;
 
-  let html = '<div class="score-table">';
-  // Header
-  html += '<div class="score-header">Player</div>';
-  for (let round = 1; round <= currentRound; round++) {
-    html += `<div class="score-header ${round === currentRound ? 'current-round' : ''}">Round ${round}</div>`;
-  }
-  html += '<div class="score-header">Total</div>';
+  // Calculate cumulative totals for each player
+  let p1Total = 0, p2Total = 0, p3Total = 0, p4Total = 0;
+  rounds.forEach(round => {
+    p1Total += round.p1;
+    p2Total += round.p2;
+    p3Total += round.p3;
+    p4Total += round.p4;
+  });
 
-  // Rows for each player
-  for (const player in scores) {
-    html += '<div class="score-row">';
-    html += `<div class="score-cell">${player}</div>`;
-    let total = 0;
-    scores[player].forEach((score, index) => {
-      total += score;
-      html += `<div class="score-cell">${score}</div>`;
-    });
-    html += `<div class="score-cell">${total}</div>`;
-    html += '</div>';
-  }
+  // Build rankings data
+  const rankingsData = [
+    { name: 'Player 1', total: p1Total },
+    { name: 'Player 2', total: p2Total },
+    { name: 'Player 3', total: p3Total },
+    { name: 'Player 4', total: p4Total }
+  ];
 
-  // Final rankings if game over
-  if (gameOver) {
-    html += '<div class="final-rankings">';
-    const sortedPlayers = Object.keys(scores).sort((a, b) => {
-      const totalA = scores[a].reduce((sum, s) => sum + s, 0);
-      const totalB = scores[b].reduce((sum, s) => sum + s, 0);
-      return totalB - totalA;
-    });
-    sortedPlayers.forEach((player, index) => {
-      const total = scores[player].reduce((sum, s) => sum + s, 0);
-      html += `<div class="score-row">`;
-      html += `<div class="score-cell ${index === 0 ? 'winner' : ''}">${index + 1}. ${player}</div>`;
-      html += `<div class="score-cell">${total}</div>`;
-      html += '</div>';
-    });
-    html += '</div>';
-  }
+  // Sort by total (descending)
+  rankingsData.sort((a, b) => b.total - a.total);
 
-  html += '</div>';
-  scoreDisplay.innerHTML = html;
+  // Update rankings list
+  let rankingsHtml = '';
+  rankingsData.forEach((player, index) => {
+    const winnerClass = index === 0 ? 'winner' : '';
+    rankingsHtml += `<div class="score-row">`;
+    rankingsHtml += `<div class="score-cell ${winnerClass}">${index + 1}. ${player.name}</div>`;
+    rankingsHtml += `<div class="score-cell ${winnerClass}">${player.total}</div>`;
+    rankingsHtml += '</div>';
+  });
+  document.getElementById('rankings-list').innerHTML = rankingsHtml;
 }
 
-// Function to add score for a player
-function addScore(player, score) {
-  if (!scores[player]) {
-    scores[player] = [];
-  }
-  scores[player].push(score);
+// Function to add a round of scores
+function addRound(p1, p2, p3, p4) {
+  const round = {
+    round: currentRoundNumber,
+    p1: p1,
+    p2: p2,
+    p3: p3,
+    p4: p4
+  };
+  rounds.push(round);
   updateScoreDisplay();
 }
 
-// Function to advance round
+// Function to advance to next round
 function nextRound() {
-  currentRound++;
-}
-
-// Function to end game
-function endGame() {
-  gameOver = true;
+  currentRoundNumber++;
   updateScoreDisplay();
 }
-
-// Main game loop (placeholder)
-function gameLoop() {
-  // Example: Simulate score updates
-  // In real app, this would be triggered by game events
-  setTimeout(() => {
-    addScore('Player1', Math.floor(Math.random() * 10));
-    addScore('Player2', Math.floor(Math.random() * 10));
-    nextRound();
-    if (currentRound > 5) {
-      endGame();
-    } else {
-      gameLoop();
-    }
-  }, 1000);
-}
-
-// Initialize
-window.onload = () => {
-  updateScoreDisplay();
-  // Start game loop
-  gameLoop();
-};
