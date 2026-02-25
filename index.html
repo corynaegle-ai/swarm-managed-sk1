@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game Interface</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/score-input.css">
 </head>
 <body>
     <div id="game-container">
@@ -12,6 +13,50 @@
             <span id="current-round">Round: 1</span>
             <span id="hands-info">0 hands this round</span>
         </div>
+        <section id="score-input">
+            <form id="score-form">
+                <h2>Score Input</h2>
+                <div class="player-inputs">
+                    <div class="player">
+                        <label for="player1-tricks">Player 1 Tricks Taken:</label>
+                        <input type="number" id="player1-tricks" name="player1-tricks" min="0" max="13" required aria-describedby="player1-tricks-help">
+                        <span id="player1-tricks-help" class="sr-only">Enter the number of tricks taken by Player 1 (0-13).</span>
+                        <label for="player1-bonus">Bonus Points:</label>
+                        <input type="number" id="player1-bonus" name="player1-bonus" min="0" aria-describedby="player1-bonus-help">
+                        <span id="player1-bonus-help" class="sr-only">Enter bonus points for Player 1.</span>
+                    </div>
+                    <div class="player">
+                        <label for="player2-tricks">Player 2 Tricks Taken:</label>
+                        <input type="number" id="player2-tricks" name="player2-tricks" min="0" max="13" required aria-describedby="player2-tricks-help">
+                        <span id="player2-tricks-help" class="sr-only">Enter the number of tricks taken by Player 2 (0-13).</span>
+                        <label for="player2-bonus">Bonus Points:</label>
+                        <input type="number" id="player2-bonus" name="player2-bonus" min="0" aria-describedby="player2-bonus-help">
+                        <span id="player2-bonus-help" class="sr-only">Enter bonus points for Player 2.</span>
+                    </div>
+                    <div class="player">
+                        <label for="player3-tricks">Player 3 Tricks Taken:</label>
+                        <input type="number" id="player3-tricks" name="player3-tricks" min="0" max="13" required aria-describedby="player3-tricks-help">
+                        <span id="player3-tricks-help" class="sr-only">Enter the number of tricks taken by Player 3 (0-13).</span>
+                        <label for="player3-bonus">Bonus Points:</label>
+                        <input type="number" id="player3-bonus" name="player3-bonus" min="0" aria-describedby="player3-bonus-help">
+                        <span id="player3-bonus-help" class="sr-only">Enter bonus points for Player 3.</span>
+                    </div>
+                    <div class="player">
+                        <label for="player4-tricks">Player 4 Tricks Taken:</label>
+                        <input type="number" id="player4-tricks" name="player4-tricks" min="0" max="13" required aria-describedby="player4-tricks-help">
+                        <span id="player4-tricks-help" class="sr-only">Enter the number of tricks taken by Player 4 (0-13).</span>
+                        <label for="player4-bonus">Bonus Points:</label>
+                        <input type="number" id="player4-bonus" name="player4-bonus" min="0" aria-describedby="player4-bonus-help">
+                        <span id="player4-bonus-help" class="sr-only">Enter bonus points for Player 4.</span>
+                    </div>
+                </div>
+                <button type="submit">Submit Scores</button>
+            </form>
+            <div id="results" aria-live="polite">
+                <h2>Round Scores</h2>
+                <p id="scores-display">Scores will appear here after submission.</p>
+            </div>
+        </section>
         <!-- Other game elements can go here -->
     </div>
 </body>
