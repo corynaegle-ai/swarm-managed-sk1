@@ -1,96 +1,114 @@
-/**
- * Module for handling round scoring in the game.
- * Collects inputs and calculates scores based on bid accuracy.
- */
-
-class RoundScoring {
-  constructor(handsInRound) {
+class RoundPlayerData {
+  constructor(playerId, bid, handsInRound) {
+    this.playerId = playerId;
+    this.bid = bid;
     this.handsInRound = handsInRound;
-    this.playerData = [];
+    this.actualTricks = null;
+    this.bonusPoints = null;
+    this.roundScore = null;
   }
 
-  /**
-   * Adds a player to the round with their bid.
-   * @param {string} playerName - Name of the player.
-   * @param {number} bid - The bid made by the player.
-   */
-  addPlayer(playerName, bid) {
-    if (typeof bid !== 'number' || bid < 0 || !Number.isInteger(bid)) {
-      throw new Error('Bid must be a non-negative integer.');
+  inputActualTricks(actualTricks) {
+    if (typeof actualTricks !== 'number' || actualTricks < 0 || !Number.isInteger(actualTricks)) {
+      throw new Error('Actual tricks must be a non-negative integer');
     }
-    this.playerData.push({
-      name: playerName,
-      bid,
-      actualTricks: null,
-      bonusPoints: null,
-      roundScore: 0
-    });
+    this.actualTricks = actualTricks;
   }
 
-  /**
-   * Inputs actual tricks taken for a player.
-   * @param {string} playerName - Name of the player.
-   * @param {number} tricks - Number of tricks taken.
-   */
-  inputActualTricks(playerName, tricks) {
-    const player = this.playerData.find(p => p.name === playerName);
-    if (!player) throw new Error('Player not found.');
-    if (typeof tricks !== 'number' || tricks < 0 || !Number.isInteger(tricks)) {
-      throw new Error('Tricks must be a non-negative integer.');
+  inputBonusPoints(bonusPoints) {
+    if (typeof bonusPoints !== 'number' || bonusPoints < 0) {
+      throw new Error('Bonus points must be a non-negative number');
     }
-    player.actualTricks = tricks;
+    this.bonusPoints = bonusPoints;
   }
 
-  /**
-   * Inputs bonus points for a player (manual entry).
-   * @param {string} playerName - Name of the player.
-   * @param {number} bonus - Bonus points.
-   */
-  inputBonusPoints(playerName, bonus) {
-    const player = this.playerData.find(p => p.name === playerName);
-    if (!player) throw new Error('Player not found.');
-    if (typeof bonus !== 'number' || bonus < 0) {
-      throw new Error('Bonus points must be a non-negative number.');
+  calculateRoundScore() {
+    if (this.actualTricks === null) {
+      throw new Error('Actual tricks must be input before calculating score');
     }
-    player.bonusPoints = bonus;
-  }
-
-  /**
-   * Calculates the round score for all players based on bid accuracy.
-   * Updates player round scores.
-   */
-  calculateRoundScores() {
-    this.playerData.forEach(player => {
-      if (player.actualTricks === null) {
-        throw new Error(`Actual tricks not input for player ${player.name}.`);
-      }
-      const diff = Math.abs(player.bid - player.actualTricks);
-      let score = 0;
-      if (player.bid === 0) {
-        score = diff === 0 ? 10 * this.handsInRound : -10 * this.handsInRound;
+    let score;
+    const difference = Math.abs(this.bid - this.actualTricks);
+    if (this.bid === this.actualTricks) {
+      if (this.bid === 0) {
+        score = 10 * this.handsInRound;
       } else {
-        score = diff === 0 ? 20 * player.actualTricks : -10 * diff;
+        score = 20 * this.actualTricks;
       }
-      player.roundScore = score;
-    });
-  }
-
-  /**
-   * Updates total scores for players.
-   * @param {object} totalScores - Object with player names as keys and current totals as values.
-   * @returns {object} Updated total scores.
-   */
-  updateTotalScores(totalScores) {
-    this.playerData.forEach(player => {
-      if (!(player.name in totalScores)) {
-        totalScores[player.name] = 0;
+    } else {
+      if (this.bid === 0) {
+        score = -10 * this.handsInRound;
+      } else {
+        score = -10 * difference;
       }
-      // Bonus only if bid was exact
-      const bonus = (player.bid === player.actualTricks) ? player.bonusPoints || 0 : 0;
-      totalScores[player.name] += player.roundScore + bonus;
-    });
-    return totalScores;
+    }
+    // Bonus points only added if bid was exact
+    if (this.bid === this.actualTricks) {
+      score += this.bonusPoints !== null ? this.bonusPoints : 0;
+    }
+    this.roundScore = score;
+    return score;
   }
 }
 
-module.exports = RoundScoring;
+class RoundScoring {
+  constructor(players, handsInRound) {
+    this.handsInRound = handsInRound;
+    this.players = players.map(p => new RoundPlayerData(p.id, p.bid, handsInRound));
+  }
+
+  inputActualTricks(playerInputs) {
+    // playerInputs: array of {playerId, actualTricks}
+    if (!Array.isArray(playerInputs)) {
+      throw new Error('playerInputs must be an array');
+    }
+    playerInputs.forEach(input => {
+      if (!input.playerId || typeof input.actualTricks !== 'number') {
+        throw new Error('Each input must have playerId and actualTricks');
+      }
+      const player = this.players.find(p => p.playerId === input.playerId);
+      if (player) {
+        player.inputActualTricks(input.actualTricks);
+      }
+    });
+  }
+
+  inputBonusPoints(playerInputs) {
+    // playerInputs: array of {playerId, bonusPoints}
+    if (!Array.isArray(playerInputs)) {
+      throw new Error('playerInputs must be an array');
+    }
+    playerInputs.forEach(input => {
+      if (!input.playerId || typeof input.bonusPoints !== 'number') {
+        throw new Error('Each input must have playerId and bonusPoints');
+      }
+      const player = this.players.find(p => p.playerId === input.playerId);
+      if (player) {
+        player.inputBonusPoints(input.bonusPoints);
+      }
+    });
+  }
+
+  calculateRoundScores() {
+    this.players.forEach(player => {
+      if (player.actualTricks === null) {
+        throw new Error(`Actual tricks not input for player ${player.playerId}`);
+      }
+      player.calculateRoundScore();
+    });
+  }
+
+  getRoundScores() {
+    return this.players.map(p => ({ playerId: p.playerId, roundScore: p.roundScore }));
+  }
+
+  updateTotalScores(totalScores) {
+    this.players.forEach(player => {
+      if (player.roundScore === null) {
+        throw new Error(`Round score not calculated for player ${player.playerId}`);
+      }
+      totalScores[player.playerId] = (totalScores[player.playerId] || 0) + player.roundScore;
+    });
+  }
+}
+
+module.exports = { RoundPlayerData, RoundScoring };

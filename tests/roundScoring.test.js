@@ -1,111 +1,172 @@
-const RoundScoring = require('../src/roundScoring');
+const { RoundPlayerData, RoundScoring } = require('../src/roundScoring');
 
 describe('RoundScoring', () => {
-  let scoring;
+  describe('RoundPlayerData', () => {
+    let player;
 
-  beforeEach(() => {
-    scoring = new RoundScoring(4); // Assume 4 hands in round
+    beforeEach(() => {
+      player = new RoundPlayerData('player1', 3, 5);
+    });
+
+    test('initializes correctly', () => {
+      expect(player.playerId).toBe('player1');
+      expect(player.bid).toBe(3);
+      expect(player.handsInRound).toBe(5);
+      expect(player.actualTricks).toBeNull();
+      expect(player.bonusPoints).toBeNull();
+      expect(player.roundScore).toBeNull();
+    });
+
+    test('inputActualTricks sets actualTricks', () => {
+      player.inputActualTricks(4);
+      expect(player.actualTricks).toBe(4);
+    });
+
+    test('inputActualTricks throws on invalid input', () => {
+      expect(() => player.inputActualTricks(-1)).toThrow('non-negative integer');
+      expect(() => player.inputActualTricks(2.5)).toThrow('non-negative integer');
+      expect(() => player.inputActualTricks('3')).toThrow('non-negative integer');
+    });
+
+    test('inputBonusPoints sets bonusPoints', () => {
+      player.inputBonusPoints(10);
+      expect(player.bonusPoints).toBe(10);
+    });
+
+    test('inputBonusPoints throws on invalid input', () => {
+      expect(() => player.inputBonusPoints(-5)).toThrow('non-negative number');
+      expect(() => player.inputBonusPoints('10')).toThrow('non-negative number');
+    });
+
+    test('calculateRoundScore exact bid non-zero', () => {
+      player.inputActualTricks(3);
+      player.inputBonusPoints(5);
+      const score = player.calculateRoundScore();
+      expect(score).toBe(20 * 3 + 5); // 60 + 5 = 65
+      expect(player.roundScore).toBe(65);
+    });
+
+    test('calculateRoundScore missed bid non-zero', () => {
+      player.inputActualTricks(2);
+      player.inputBonusPoints(5);
+      const score = player.calculateRoundScore();
+      expect(score).toBe(-10 * 1); // -10, bonus not added
+      expect(player.roundScore).toBe(-10);
+    });
+
+    test('calculateRoundScore zero bid exact', () => {
+      const zeroPlayer = new RoundPlayerData('player2', 0, 5);
+      zeroPlayer.inputActualTricks(0);
+      zeroPlayer.inputBonusPoints(10);
+      const score = zeroPlayer.calculateRoundScore();
+      expect(score).toBe(10 * 5 + 10); // 50 + 10 = 60
+      expect(zeroPlayer.roundScore).toBe(60);
+    });
+
+    test('calculateRoundScore zero bid missed', () => {
+      const zeroPlayer = new RoundPlayerData('player2', 0, 5);
+      zeroPlayer.inputActualTricks(1);
+      zeroPlayer.inputBonusPoints(10);
+      const score = zeroPlayer.calculateRoundScore();
+      expect(score).toBe(-10 * 5); // -50, bonus not added
+      expect(zeroPlayer.roundScore).toBe(-50);
+    });
+
+    test('calculateRoundScore with null bonusPoints treated as 0', () => {
+      player.inputActualTricks(3);
+      // bonusPoints remains null
+      const score = player.calculateRoundScore();
+      expect(score).toBe(20 * 3); // 60, null bonus = 0
+      expect(player.roundScore).toBe(60);
+    });
+
+    test('calculateRoundScore throws if actualTricks not set', () => {
+      expect(() => player.calculateRoundScore()).toThrow('Actual tricks must be input');
+    });
   });
 
-  test('should add players correctly', () => {
-    scoring.addPlayer('Alice', 3);
-    expect(scoring.playerData[0].name).toBe('Alice');
-    expect(scoring.playerData[0].bid).toBe(3);
-  });
+  describe('RoundScoring', () => {
+    let roundScoring;
+    const players = [
+      { id: 'p1', bid: 3 },
+      { id: 'p2', bid: 0 },
+      { id: 'p3', bid: 4 }
+    ];
+    const handsInRound = 5;
 
-  test('should throw error for invalid bid', () => {
-    expect(() => scoring.addPlayer('Alice', -1)).toThrow('Bid must be a non-negative integer.');
-    expect(() => scoring.addPlayer('Alice', 2.5)).toThrow('Bid must be a non-negative integer.');
-  });
+    beforeEach(() => {
+      roundScoring = new RoundScoring(players, handsInRound);
+    });
 
-  test('should input actual tricks', () => {
-    scoring.addPlayer('Alice', 3);
-    scoring.inputActualTricks('Alice', 3);
-    expect(scoring.playerData[0].actualTricks).toBe(3);
-  });
+    test('initializes players', () => {
+      expect(roundScoring.players.length).toBe(3);
+      expect(roundScoring.players[0].playerId).toBe('p1');
+    });
 
-  test('should throw error for invalid tricks', () => {
-    scoring.addPlayer('Alice', 3);
-    expect(() => scoring.inputActualTricks('Alice', -1)).toThrow('Tricks must be a non-negative integer.');
-  });
+    test('inputActualTricks batch', () => {
+      roundScoring.inputActualTricks([
+        { playerId: 'p1', actualTricks: 3 },
+        { playerId: 'p2', actualTricks: 0 }
+      ]);
+      expect(roundScoring.players[0].actualTricks).toBe(3);
+      expect(roundScoring.players[1].actualTricks).toBe(0);
+    });
 
-  test('should input bonus points', () => {
-    scoring.addPlayer('Alice', 3);
-    scoring.inputBonusPoints('Alice', 10);
-    expect(scoring.playerData[0].bonusPoints).toBe(10);
-  });
+    test('inputBonusPoints batch', () => {
+      roundScoring.inputBonusPoints([
+        { playerId: 'p1', bonusPoints: 5 },
+        { playerId: 'p2', bonusPoints: 0 }
+      ]);
+      expect(roundScoring.players[0].bonusPoints).toBe(5);
+      expect(roundScoring.players[1].bonusPoints).toBe(0);
+    });
 
-  test('should throw error for invalid bonus', () => {
-    scoring.addPlayer('Alice', 3);
-    expect(() => scoring.inputBonusPoints('Alice', -5)).toThrow('Bonus points must be a non-negative number.');
-  });
+    test('calculateRoundScores', () => {
+      roundScoring.inputActualTricks([
+        { playerId: 'p1', actualTricks: 3 },
+        { playerId: 'p2', actualTricks: 0 },
+        { playerId: 'p3', actualTricks: 5 }
+      ]);
+      roundScoring.inputBonusPoints([
+        { playerId: 'p1', bonusPoints: 5 },
+        { playerId: 'p2', bonusPoints: 10 },
+        { playerId: 'p3', bonusPoints: 0 }
+      ]);
+      roundScoring.calculateRoundScores();
+      expect(roundScoring.players[0].roundScore).toBe(20 * 3 + 5); // 65
+      expect(roundScoring.players[1].roundScore).toBe(10 * 5 + 10); // 60
+      expect(roundScoring.players[2].roundScore).toBe(-10 * 1); // -10
+    });
 
-  test('should calculate round scores for exact bid', () => {
-    scoring.addPlayer('Alice', 3);
-    scoring.inputActualTricks('Alice', 3);
-    scoring.calculateRoundScores();
-    expect(scoring.playerData[0].roundScore).toBe(60); // 20 * 3
-  });
+    test('getRoundScores', () => {
+      roundScoring.inputActualTricks([{ playerId: 'p1', actualTricks: 3 }]);
+      roundScoring.inputBonusPoints([{ playerId: 'p1', bonusPoints: 5 }]);
+      roundScoring.calculateRoundScores();
+      const scores = roundScoring.getRoundScores();
+      expect(scores).toEqual([
+        { playerId: 'p1', roundScore: 65 },
+        { playerId: 'p2', roundScore: null },
+        { playerId: 'p3', roundScore: null }
+      ]);
+    });
 
-  test('should calculate round scores for missed bid', () => {
-    scoring.addPlayer('Alice', 3);
-    scoring.inputActualTricks('Alice', 2);
-    scoring.calculateRoundScores();
-    expect(scoring.playerData[0].roundScore).toBe(-10); // -10 * 1
-  });
-
-  test('should calculate round scores for zero bid exact', () => {
-    scoring.addPlayer('Alice', 0);
-    scoring.inputActualTricks('Alice', 0);
-    scoring.calculateRoundScores();
-    expect(scoring.playerData[0].roundScore).toBe(40); // 10 * 4
-  });
-
-  test('should calculate round scores for zero bid missed', () => {
-    scoring.addPlayer('Alice', 0);
-    scoring.inputActualTricks('Alice', 1);
-    scoring.calculateRoundScores();
-    expect(scoring.playerData[0].roundScore).toBe(-40); // -10 * 4
-  });
-
-  test('should update total scores with bonus only on exact bid', () => {
-    scoring.addPlayer('Alice', 3);
-    scoring.inputActualTricks('Alice', 3);
-    scoring.inputBonusPoints('Alice', 10);
-    scoring.calculateRoundScores();
-    const totals = {};
-    const updated = scoring.updateTotalScores(totals);
-    expect(updated.Alice).toBe(70); // 60 + 10
-  });
-
-  test('should not add bonus on missed bid', () => {
-    scoring.addPlayer('Alice', 3);
-    scoring.inputActualTricks('Alice', 2);
-    scoring.inputBonusPoints('Alice', 10);
-    scoring.calculateRoundScores();
-    const totals = {};
-    const updated = scoring.updateTotalScores(totals);
-    expect(updated.Alice).toBe(-10); // -10 + 0 bonus
-  });
-
-  test('should handle multiple players', () => {
-    scoring.addPlayer('Alice', 3);
-    scoring.addPlayer('Bob', 0);
-    scoring.inputActualTricks('Alice', 3);
-    scoring.inputActualTricks('Bob', 0);
-    scoring.inputBonusPoints('Alice', 5);
-    scoring.inputBonusPoints('Bob', 5);
-    scoring.calculateRoundScores();
-    const totals = {};
-    const updated = scoring.updateTotalScores(totals);
-    expect(updated.Alice).toBe(65); // 60 + 5
-    expect(updated.Bob).toBe(40); // 40 + 0 (zero bid exact, no bonus added? Wait, zero bid exact is exact, so bonus should be added)
-    // Wait, adjust: for Bob, bid=0, actual=0, exact, so bonus 5
-    expect(updated.Bob).toBe(45); // 40 + 5
-  });
-
-  test('should throw error if tricks not input before calculation', () => {
-    scoring.addPlayer('Alice', 3);
-    expect(() => scoring.calculateRoundScores()).toThrow('Actual tricks not input for player Alice.');
+    test('updateTotalScores', () => {
+      const totalScores = { p1: 100, p2: 50, p3: 75 };
+      roundScoring.inputActualTricks([
+        { playerId: 'p1', actualTricks: 3 },
+        { playerId: 'p2', actualTricks: 0 },
+        { playerId: 'p3', actualTricks: 5 }
+      ]);
+      roundScoring.inputBonusPoints([
+        { playerId: 'p1', bonusPoints: 5 },
+        { playerId: 'p2', bonusPoints: 10 },
+        { playerId: 'p3', bonusPoints: 0 }
+      ]);
+      roundScoring.calculateRoundScores();
+      roundScoring.updateTotalScores(totalScores);
+      expect(totalScores.p1).toBe(100 + 65);
+      expect(totalScores.p2).toBe(50 + 60);
+      expect(totalScores.p3).toBe(75 - 10);
+    });
   });
 });
