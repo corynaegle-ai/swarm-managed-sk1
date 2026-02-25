@@ -1,0 +1,44 @@
+.score-table {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 10px;
+  margin: 20px 0;
+  font-family: Arial, sans-serif;
+}
+
+.score-header {
+  font-weight: bold;
+  background-color: #f0f0f0;
+  padding: 10px;
+  text-align: center;
+}
+
+.score-row {
+  display: contents;
+}
+
+.score-cell {
+  padding: 10px;
+  text-align: center;
+  border: 1px solid #ddd;
+}
+
+.current-round {
+  background-color: #ffff99;
+  font-weight: bold;
+}
+
+.final-rankings .score-cell {
+  background-color: #e6f7ff;
+}
+
+.winner {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+@media (max-width: 600px) {
+  .score-table {
+    grid-template-columns: 1fr;
+  }
+}
