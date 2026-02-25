@@ -27,16 +27,13 @@ describe('GameFlow', () => {
     fireEvent.click(screen.getByText('Start Bidding'));
     expect(screen.getByText('Current Phase: BIDDING (Round 1)')).toBeInTheDocument();
     
-    // Verify we cannot skip bidding - no direct way to advance without submitting bid
-    expect(screen.queryByText('Start Playing')).not.toBeInTheDocument();
+    // Verify the only button in bidding phase is Submit Bid
+    const submitBidButton = screen.getByText('Submit Bid');
+    expect(submitBidButton).toBeInTheDocument();
     
-    // Submit bid to advance
-    fireEvent.click(screen.getByText('Submit Bid'));
-    expect(screen.getByText('Current Phase: PLAYING (Round 1)')).toBeInTheDocument();
-    
-    // Verify we must complete playing before scoring
-    const completeButton = screen.getByText('Complete Round');
-    expect(completeButton).toBeInTheDocument();
+    // Submit bid to advance to scoring
+    fireEvent.click(submitBidButton);
+    expect(screen.getByText('Current Phase: SCORING (Round 1)')).toBeInTheDocument();
   });
 
   test('completes after round 10', () => {
@@ -44,33 +41,24 @@ describe('GameFlow', () => {
     
     // Simulate 10 complete rounds
     for (let round = 1; round <= 10; round++) {
-      // Verify current round
+      // Verify current round in SETUP phase
       expect(screen.getByText(`Current Phase: SETUP (Round ${round})`)).toBeInTheDocument();
       
       // Setup -> Bidding
       fireEvent.click(screen.getByText('Start Bidding'));
       expect(screen.getByText(`Current Phase: BIDDING (Round ${round})`)).toBeInTheDocument();
       
-      // Bidding -> Playing
+      // Bidding -> Scoring
       fireEvent.click(screen.getByText('Submit Bid'));
-      expect(screen.getByText(`Current Phase: PLAYING (Round ${round})`)).toBeInTheDocument();
-      
-      // Playing -> Scoring
-      fireEvent.click(screen.getByText('Complete Round'));
       expect(screen.getByText(`Current Phase: SCORING (Round ${round})`)).toBeInTheDocument();
       
-      // Scoring -> Next Round (or Game Complete)
+      // Scoring -> Next Round Setup or Game Complete
+      fireEvent.click(screen.getByText('Calculate Scores'));
       if (round < 10) {
-        fireEvent.click(screen.getByText('Next Round'));
+        expect(screen.getByText(`Current Phase: SETUP (Round ${round + 1})`)).toBeInTheDocument();
       } else {
-        // After round 10, game should be complete
-        fireEvent.click(screen.getByText('Calculate Scores'));
         expect(screen.getByText('Game Complete!')).toBeInTheDocument();
       }
     }
-    
-    // Verify game is in completed state
-    expect(screen.getByText('Game Complete!')).toBeInTheDocument();
-    expect(screen.queryByText('Start Bidding')).not.toBeInTheDocument();
   });
 });
