@@ -1,47 +1,49 @@
-class Player {
-  constructor(id, name, score = 0) {
-    this.id = id;
-    this.name = name;
-    this.score = score;
+export class Player {
+  constructor(name) {
+    if (!name || typeof name !== 'string' || name.trim() === '') {
+      throw new Error('Player name must be a non-empty string');
+    }
+    this.id = Date.now() + Math.random(); // Unique ID using timestamp and random for robustness
+    this.name = name.trim();
+    this.score = 0;
   }
 }
 
-class GameState {
+export class GameState {
   constructor() {
     this.players = [];
-    this.idCounter = 0; // Use counter for unique IDs
   }
 
   addPlayer(name) {
     if (this.players.length >= 8) {
-      return { success: false, error: "Maximum 8 players allowed" };
+      return { success: false, error: 'Maximum of 8 players allowed' };
     }
-    const id = ++this.idCounter; // Increment counter for unique ID
-    const player = new Player(id, name, 0);
-    this.players.push(player);
-    return { success: true, player };
+    try {
+      const player = new Player(name);
+      this.players.push(player);
+      return { success: true };
+    } catch (e) {
+      return { success: false, error: e.message };
+    }
   }
 
   removePlayer(id) {
+    if (this.players.length <= 2) {
+      return { success: false, error: 'Minimum of 2 players required' };
+    }
     const index = this.players.findIndex(p => p.id === id);
     if (index === -1) {
-      return { success: false, error: "Player not found" };
-    }
-    if (this.players.length <= 2) {
-      return { success: false, error: "Minimum 2 players required" };
+      return { success: false, error: 'Player not found' };
     }
     this.players.splice(index, 1);
     return { success: true };
   }
 
   getPlayers() {
-    return this.players;
+    return [...this.players]; // Return a shallow copy to prevent external modification
   }
 
   validatePlayerCount() {
     return this.players.length >= 2 && this.players.length <= 8;
   }
 }
-
-// Export classes for use in other modules
-module.exports = { Player, GameState };
