@@ -37,11 +37,9 @@ describe('RoundManager', () => {
       for (let hand = 0; hand < round; hand++) {
         rm.addScore(hand, 10);
       }
-      if (round < 10) {
-        rm.advanceRound();
-      }
+      rm.advanceRound();
     }
     assert(rm.isGameOver());
-    assert.equal(rm.getCurrentRound(), 10);
+    assert.equal(rm.getCurrentRound(), 11);
   });
 });
