@@ -27,21 +27,19 @@ test('Cannot advance without scoring complete', () => {
 
 test('Can advance after scoring', () => {
   const rm = new RoundManager();
-  rm.scored = true; // Simulate external scoring completion
+  rm.markScoringComplete(); // Simulate external scoring completion
   assert.equal(rm.canAdvanceRound(), true, 'Should be able to advance');
   rm.advanceRound();
   assert.equal(rm.getCurrentRound(), 2, 'Should advance to round 2');
-  assert.equal(rm.scored, false, 'Scored should reset');
+  assert.equal(rm.canAdvanceRound(), false, 'Should not be able to advance after advancing');
 });
 
 test('Game not complete until after round 10', () => {
   const rm = new RoundManager();
   for (let i = 1; i <= 10; i++) {
     assert.equal(rm.isGameComplete(), false, `Game should not be complete at round ${i}`);
-    if (i < 10) {
-      rm.scored = true;
-      rm.advanceRound();
-    }
+    rm.markScoringComplete();
+    rm.advanceRound();
   }
   assert.equal(rm.isGameComplete(), true, 'Game should be complete after round 10');
 });
@@ -72,20 +70,18 @@ test('Cannot advance without scoring complete', () => {
 });
 test('Can advance after scoring', () => {
   const rm = new RoundManager();
-  rm.scored = true;
+  rm.markScoringComplete();
   assert.equal(rm.canAdvanceRound(), true, 'Should be able to advance');
   rm.advanceRound();
   assert.equal(rm.getCurrentRound(), 2, 'Should advance to round 2');
-  assert.equal(rm.scored, false, 'Scored should reset');
+  assert.equal(rm.canAdvanceRound(), false, 'Should not be able to advance after advancing');
 });
 test('Game not complete until after round 10', () => {
   const rm = new RoundManager();
   for (let i = 1; i <= 10; i++) {
     assert.equal(rm.isGameComplete(), false, `Game should not be complete at round ${i}`);
-    if (i < 10) {
-      rm.scored = true;
-      rm.advanceRound();
-    }
+    rm.markScoringComplete();
+    rm.advanceRound();
   }
   assert.equal(rm.isGameComplete(), true, 'Game should be complete after round 10');
 });
