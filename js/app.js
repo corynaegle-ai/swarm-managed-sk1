@@ -14,45 +14,50 @@ function updateRoundDisplay() {
 
 // Function to handle round advancement after scoring completion
 function advanceRoundIfScoringComplete() {
-    if (isScoringComplete()) {  // Assuming a function to check scoring status
+    try {
         roundManager.advanceRound();
         updateRoundDisplay();
         checkGameEnd();
-    } else {
-        console.warn('Cannot advance round: Scoring is not complete.');
+    } catch (error) {
+        console.error('Error advancing round:', error);
     }
 }
 
-// Function to check if game should end after round 10
+// Function to check if game should end after round 10 completes
 function checkGameEnd() {
-    if (roundManager.getCurrentRound() > 10) {
-        endGame();
+    try {
+        if (roundManager.getCurrentRound() > 10) {
+            endGame();
+        }
+    } catch (error) {
+        console.error('Error checking game end:', error);
     }
 }
 
-// Placeholder for game end logic
+// Function to end the game
 function endGame() {
     console.log('Game ended after round 10.');
-    // Additional logic: disable UI, show end screen, etc.
+    // Disable UI elements to prevent further interaction
     const gameContainer = document.getElementById('game-container');
     if (gameContainer) {
-        gameContainer.innerHTML = '<h2>Game Over!</h2>';
+        gameContainer.innerHTML = '<h2>Game Over!</h2><p>Thank you for playing!</p>';
+        // Optionally disable other elements, e.g., buttons
+        const buttons = document.querySelectorAll('button');
+        buttons.forEach(button => button.disabled = true);
     }
 }
 
-// Placeholder for checking if scoring is complete
-// This should be integrated with actual scoring logic
-function isScoringComplete() {
-    // Implement based on game state; for now, assume true for demo
-    return true;  // Replace with real check
-}
+// Note: isScoringComplete is no longer used; round advancement is event-driven to prevent invalid advancement
 
 // Main game loop or initialization (assumed existing)
-// This is a placeholder; integrate with actual game start
 function initializeGame() {
-    updateRoundDisplay();
-    // Set up event listeners for scoring completion
-    // Example: document.addEventListener('scoringComplete', advanceRoundIfScoringComplete);
+    try {
+        updateRoundDisplay();
+        // Set up event listeners for scoring completion to automatically advance round
+        document.addEventListener('scoringComplete', advanceRoundIfScoringComplete);
+    } catch (error) {
+        console.error('Error initializing game:', error);
+    }
 }
 
 // Call initialization on load
