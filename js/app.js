@@ -13,7 +13,8 @@ function validateName(name) {
   if (trimmed === '') {
     return 'Player name cannot be empty.';
   }
-  if (gameState.getPlayers().includes(trimmed)) {
+  const players = gameState.getPlayers();
+  if (players.some(player => player.name === trimmed)) {
     return 'Player name must be unique.';
   }
   return null;
@@ -39,7 +40,7 @@ function renderPlayerList() {
   const players = gameState.getPlayers();
   players.forEach((player, index) => {
     const li = document.createElement('li');
-    li.textContent = player;
+    li.textContent = player.name;
     const removeBtn = document.createElement('button');
     removeBtn.textContent = 'Remove';
     removeBtn.addEventListener('click', () => {
@@ -59,6 +60,11 @@ function updateStartButton() {
 playerForm.addEventListener('submit', (e) => {
   e.preventDefault();
   const name = playerNameInput.value;
+  const players = gameState.getPlayers();
+  if (players.length >= 8) {
+    displayError('Maximum 8 players allowed.');
+    return;
+  }
   const error = validateName(name);
   if (error) {
     displayError(error);
