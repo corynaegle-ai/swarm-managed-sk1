@@ -1,0 +1,114 @@
+/* Player Management Styles */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+  background-color: #f4f4f4;
+}
+.player-setup {
+  max-width: 600px;
+  margin: 0 auto;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+h1 {
+  text-align: center;
+  color: #333;
+}
+form {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+label {
+  font-weight: bold;
+}
+input[type="text"] {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+button[type="submit"] {
+  background-color: #28a745;
+  color: white;
+}
+button[type="submit"]:hover {
+  background-color: #218838;
+}
+button:disabled {
+  background-color: #6c757d;
+  color: white;
+  cursor: not-allowed;
+}
+.player-list {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 20px;
+}
+.player-list li {
+  background: #e9ecef;
+  margin: 5px 0;
+  padding: 10px;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.player-list li button {
+  background-color: #dc3545;
+  color: white;
+  padding: 5px 10px;
+  font-size: 14px;
+}
+.player-list li button:hover {
+  background-color: #c82333;
+}
+#start-game {
+  width: 100%;
+  background-color: #007bff;
+  color: white;
+}
+#start-game:not(:disabled):hover {
+  background-color: #0056b3;
+}
+/* Validation messages */
+.error {
+  color: #dc3545;
+  font-size: 14px;
+  margin-top: 5px;
+}
+/* Responsive design */
+@media (max-width: 600px) {
+  .player-setup {
+    padding: 15px;
+  }
+  form {
+    gap: 8px;
+  }
+  input[type="text"] {
+    font-size: 14px;
+  }
+  button {
+    font-size: 14px;
+  }
+  .player-list li {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .player-list li button {
+    margin-top: 5px;
+    align-self: flex-end;
+  }
+}
