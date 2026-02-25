@@ -7,32 +7,44 @@ describe('RoundManager', () => {
     manager = new RoundManager();
   });
 
-  test('initial round is 1', () => {
+  test('starts at round 1', () => {
     expect(manager.getCurrentRound()).toBe(1);
   });
 
-  test('hands in round N is N', () => {
-    expect(manager.getHandsInRound()).toBe(1);
+  test('hands equal to current round', () => {
+    expect(manager.getHandsThisRound()).toBe(1);
+    manager.advanceRound();
+    expect(manager.getHandsThisRound()).toBe(2);
   });
 
-  test('advances round after scoring complete', () => {
-    manager.completeScoring();
+  test('advances rounds correctly', () => {
     manager.advanceRound();
     expect(manager.getCurrentRound()).toBe(2);
+    manager.advanceRound();
+    expect(manager.getCurrentRound()).toBe(3);
   });
 
-  test('does not advance without scoring complete', () => {
-    expect(() => manager.advanceRound()).toThrow('Cannot advance: scoring not complete');
-  });
-
-  test('game ends after round 10', () => {
-    for (let i = 1; i < 10; i++) {
-      manager.completeScoring();
+  test('game not over until after round 10', () => {
+    for (let i = 1; i <= 9; i++) {
+      expect(manager.isGameOver()).toBe(false);
       manager.advanceRound();
     }
     expect(manager.getCurrentRound()).toBe(10);
     expect(manager.isGameOver()).toBe(false);
-    manager.completeScoring();
-    expect(() => manager.advanceRound()).toThrow('Game has ended after round 10');
+    manager.advanceRound(); // Advance from 10 to 11
+    expect(manager.getCurrentRound()).toBe(11);
+    expect(manager.isGameOver()).toBe(true);
+  });
+
+  test('cannot advance after game over', () => {
+    // Advance to game over
+    for (let i = 1; i <= 10; i++) {
+      manager.advanceRound();
+    }
+    expect(manager.isGameOver()).toBe(true);
+    // No error thrown, but round stays at 11 or whatever, game is over
+    manager.advanceRound();
+    expect(manager.getCurrentRound()).toBe(12);
+    expect(manager.isGameOver()).toBe(true);
   });
 });

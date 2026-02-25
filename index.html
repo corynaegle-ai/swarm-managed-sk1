@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Round Management</title>
+</head>
+<body>
+  <h1>Round Management</h1>
+  <p>Current Round: <span id="current-round">1</span></p>
+  <p>Hands Available This Round: <span id="hands">1</span></p>
+  <button id="advance-btn">Advance Round</button>
+  <p id="game-status"></p>
+
+  <script src="src/roundManager.js"></script>
+  <script>
+    const roundManager = new RoundManager();
+    const currentRoundEl = document.getElementById('current-round');
+    const handsEl = document.getElementById('hands');
+    const advanceBtn = document.getElementById('advance-btn');
+    const gameStatusEl = document.getElementById('game-status');
+
+    function updateDisplay() {
+      currentRoundEl.textContent = roundManager.getCurrentRound();
+      handsEl.textContent = roundManager.getHandsThisRound();
+      if (roundManager.isGameOver()) {
+        gameStatusEl.textContent = 'Game Over!';
+        advanceBtn.disabled = true;
+      } else {
+        gameStatusEl.textContent = '';
+        advanceBtn.disabled = false;
+      }
+    }
+
+    updateDisplay();
+
+    advanceBtn.addEventListener('click', () => {
+      try {
+        roundManager.advanceRound();
+        updateDisplay();
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+  </script>
+</body>
+</html>
