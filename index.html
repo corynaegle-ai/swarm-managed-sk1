@@ -9,6 +9,17 @@
 </head>
 <body>
     <div id="game-container">
+        <section id="player-management">
+            <h2>Player Management</h2>
+            <form id="player-form">
+                <label for="player-name">Player Name:</label>
+                <input type="text" id="player-name" name="player-name" required>
+                <button type="submit">Add Player</button>
+            </form>
+            <div id="error-message" style="display: none; color: red;"></div>
+            <ul id="player-list"></ul>
+            <button id="start-game" disabled>Start Game</button>
+        </section>
         <div id="round-display">
             <span id="current-round">Round: 1</span>
             <span id="hands-info">0 hands this round</span>
@@ -59,5 +70,6 @@
         </section>
         <!-- Other game elements can go here -->
     </div>
+    <script type="module" src="js/app.js"></script>
 </body>
 </html>
