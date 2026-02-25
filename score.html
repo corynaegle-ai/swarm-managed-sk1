@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Score Display</title>
+    <style>
+        .active-round {
+            background-color: lightblue;
+            font-weight: bold;
+        }
+        .final-ranking {
+            color: green;
+            font-size: 1.2em;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Score Display</h1>
+    <section>
+        <h2>Current Totals</h2>
+        <table id="current-totals-table">
+            <thead>
+                <tr>
+                    <th>Player</th>
+                    <th>Total Score</th>
+                </tr>
+            </thead>
+            <tbody id="current-totals-body">
+            </tbody>
+        </table>
+    </section>
+    <section>
+        <h2>Round-by-Round Breakdown</h2>
+        <table id="round-breakdown-table">
+            <thead id="round-breakdown-head">
+            </thead>
+            <tbody id="round-breakdown-body">
+            </tbody>
+        </table>
+    </section>
+    <section id="final-rankings-section" style="display: none;">
+        <h2>Final Rankings</h2>
+        <ol id="final-rankings-list">
+        </ol>
+    </section>
+    <script src="js/scoreDisplay.js"></script>
+</body>
+</html>
