@@ -1,4 +1,7 @@
 // tests/app.test.js - Tests for app.js
+// NOTE: These tests use mocked DOM elements for unit testing.
+// They verify the logic flow but not actual browser DOM behavior.
+// For full DOM integration testing, use browser-based E2E tests.
 import { jest } from '@jest/globals';
 import { gameState, startNewRound, transitionToNextPhase } from '../js/app.js';
 import { initializeBidding, handleBidSubmission } from '../js/bidding.js';
@@ -54,10 +57,20 @@ describe('App Tests', () => {
   });
 
   test('initializeBidding is called in bidding phase', () => {
+    // Setup: Initialize game state with players
+    gameState.players = ['player1', 'player2'];
+    gameState.phase = 'setup';
+    gameState.round = 1;
+    
     initializeBidding.mockReturnValue({ success: true });
-    // Simulate initGame indirectly by calling functions
-    startNewRound(); // This triggers bidding
+    
+    // Act: Start new round which should transition to bidding phase
+    startNewRound();
+    
+    // Assert: Verify initializeBidding was called with correct parameters
     expect(initializeBidding).toHaveBeenCalledWith(gameState.players, gameState.round);
+    // Verify phase transition occurred
+    expect(gameState.phase).toBe('bidding');
   });
 
   test('handleBidSubmission processes valid bid', () => {
