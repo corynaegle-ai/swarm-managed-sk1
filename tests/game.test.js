@@ -51,6 +51,12 @@ describe('GameState Class', () => {
   test('should prevent removing below 2 players', () => {
     gameState.addPlayer('Alice');
     gameState.addPlayer('Bob');
+    gameState.addPlayer('Charlie');
+    const playerId = gameState.getPlayers()[0].id;
+    gameState.removePlayer(playerId);
+    expect(gameState.getPlayers().length).toBe(2);
+    
+    // Now try to remove when only 2 players remain - should be prevented
     const result = gameState.removePlayer(gameState.getPlayers()[0].id);
     expect(result.success).toBe(false);
     expect(result.error).toBe('Minimum 2 players required');
