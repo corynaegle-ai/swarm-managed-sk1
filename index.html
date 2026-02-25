@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Player Setup</title>
+<link rel="stylesheet" href="css/players.css">
+</head>
+<body>
+<section class="player-setup" data-player-setup>
+<h1>Player Management</h1>
+<form id="add-player-form" data-add-player-form>
+<label for="player-name">Player Name:</label>
+<input type="text" id="player-name" data-player-name placeholder="Enter player name" required>
+<button type="submit" data-add-player-btn>Add Player</button>
+</form>
+<ul id="player-list" class="player-list" data-player-list></ul>
+<button id="start-game" data-start-game disabled>Start Game</button>
+</section>
+</body>
+</html>
