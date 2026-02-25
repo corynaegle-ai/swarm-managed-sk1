@@ -1,83 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Round Management Game</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
-        .round-info { margin: 20px; }
-        .scoring { margin: 20px; }
-        .scoring input { margin: 5px; width: 100px; }
-        button { padding: 10px 20px; margin: 10px; }
-        button:disabled { background-color: #ccc; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Round Manager</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
 </head>
 <body>
-    <h1>Round Management Game</h1>
-    <div class="round-info">
-        <p>Current Round: <span id="current-round">1</span></p>
-        <p>Hands in this Round: <span id="hands">1</span></p>
-        <p id="game-status"></p>
-    </div>
-    <div class="scoring" id="scoring-section">
-        <h3>Enter Scores for Each Hand:</h3>
-        <div id="score-inputs"></div>
-        <button id="submit-scores" onclick="submitScores()">Submit Scores</button>
-    </div>
-    <button id="advance-round" onclick="advanceRound()" disabled>Advance to Next Round</button>
-    <script src="src/roundManager.js"></script>
-    <script>
-        const roundManager = new RoundManager();
+  <h1>Round Manager</h1>
+  <div id="round-display">Current Round: <span id="current-round">1</span></div>
+  <div id="hands-display">Hands this round: <span id="hands-count">1</span></div>
+  <div id="score-inputs"></div>
+  <button id="submit-scores">Submit Scores</button>
+  <button id="advance-round" disabled>Advance to Next Round</button>
+  <div id="game-status"></div>
+
+  <script>
+    const RoundManager = require(['./src/roundManager.js']);
+    let rm = new RoundManager();
+    updateDisplay();
+
+    document.getElementById('submit-scores').addEventListener('click', () => {
+      const inputs = document.querySelectorAll('.score-input');
+      let allFilled = true;
+      inputs.forEach((input, index) => {
+        const score = parseFloat(input.value);
+        if (isNaN(score)) {
+          allFilled = false;
+        } else {
+          rm.addScore(index, score);
+        }
+      });
+      if (!allFilled) {
+        alert('Please fill all score inputs with valid numbers.');
+        return;
+      }
+      document.getElementById('advance-round').disabled = !rm.isRoundComplete();
+    });
+
+    document.getElementById('advance-round').addEventListener('click', () => {
+      if (rm.advanceRound()) {
         updateDisplay();
-
-        function updateDisplay() {
-            document.getElementById('current-round').textContent = roundManager.currentRound;
-            document.getElementById('hands').textContent = roundManager.getHandsForRound();
-            const inputsDiv = document.getElementById('score-inputs');
-            inputsDiv.innerHTML = '';
-            for (let i = 0; i < roundManager.getHandsForRound(); i++) {
-                const input = document.createElement('input');
-                input.type = 'number';
-                input.placeholder = `Score for Hand ${i + 1}`;
-                input.id = `score-${i}`;
-                inputsDiv.appendChild(input);
-            }
-            document.getElementById('submit-scores').disabled = false;
-            document.getElementById('advance-round').disabled = true;
-            if (roundManager.isGameOver()) {
-                document.getElementById('game-status').textContent = 'Game Over!';
-                document.getElementById('scoring-section').style.display = 'none';
-                document.getElementById('advance-round').style.display = 'none';
-            } else {
-                document.getElementById('game-status').textContent = '';
-                document.getElementById('scoring-section').style.display = 'block';
-                document.getElementById('advance-round').style.display = 'block';
-            }
+        if (rm.isGameOver()) {
+          document.getElementById('game-status').textContent = 'Game Over!';
+          document.getElementById('advance-round').disabled = true;
         }
+      }
+    });
 
-        function submitScores() {
-            const scores = [];
-            for (let i = 0; i < roundManager.getHandsForRound(); i++) {
-                const score = parseInt(document.getElementById(`score-${i}`).value);
-                if (isNaN(score)) {
-                    alert('Please enter valid scores for all hands.');
-                    return;
-                }
-                scores.push(score);
-            }
-            roundManager.setScores(scores);
-            document.getElementById('submit-scores').disabled = true;
-            document.getElementById('advance-round').disabled = false;
-        }
-
-        function advanceRound() {
-            if (roundManager.advanceRound()) {
-                updateDisplay();
-            } else {
-                alert('Cannot advance round: Scoring not complete or game over.');
-            }
-        }
-    </script>
+    function updateDisplay() {
+      document.getElementById('current-round').textContent = rm.getCurrentRound();
+      document.getElementById('hands-count').textContent = rm.getHandsThisRound();
+      const inputsDiv = document.getElementById('score-inputs');
+      inputsDiv.innerHTML = '';
+      for (let i = 0; i < rm.getHandsThisRound(); i++) {
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.className = 'score-input';
+        input.placeholder = `Score for hand ${i + 1}`;
+        inputsDiv.appendChild(input);
+      }
+      document.getElementById('advance-round').disabled = !rm.isRoundComplete();
+    }
+  </script>
 </body>
 </html>

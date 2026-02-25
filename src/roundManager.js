@@ -1,43 +1,47 @@
+// RoundManager class to manage rounds, each with N hands
 class RoundManager {
-    constructor() {
-        this.currentRound = 1;
-        this.maxRounds = 10;
-        this.scores = {}; // Object to store scores per round, e.g., {1: [score1], 2: [score1, score2], ...}
-        this.scoringComplete = {}; // Track if scoring is complete for each round
-    }
+  constructor() {
+    this.currentRound = 1;
+    this.scores = {}; // Object to hold scores per round, e.g., {1: [score1, score2, ...]}
+    this.maxRounds = 10;
+  }
 
-    getHandsForRound(round = this.currentRound) {
-        return round;
-    }
+  getCurrentRound() {
+    return this.currentRound;
+  }
 
-    setScores(scores) {
-        if (scores.length !== this.getHandsForRound()) {
-            throw new Error('Number of scores must match number of hands.');
-        }
-        this.scores[this.currentRound] = scores;
-        this.scoringComplete[this.currentRound] = true;
-    }
+  getHandsThisRound() {
+    return this.currentRound;
+  }
 
-    advanceRound() {
-        if (!this.scoringComplete[this.currentRound]) {
-            return false; // Cannot advance without scoring
-        }
-        if (this.currentRound >= this.maxRounds) {
-            return false; // Game over, no more rounds
-        }
-        this.currentRound++;
-        return true;
+  addScore(handIndex, score) {
+    if (!this.scores[this.currentRound]) {
+      this.scores[this.currentRound] = [];
     }
+    this.scores[this.currentRound][handIndex] = score;
+  }
 
-    isGameOver() {
-        return this.currentRound > this.maxRounds;
-    }
+  getScoresForRound(round) {
+    return this.scores[round] || [];
+  }
 
-    getCurrentRound() {
-        return this.currentRound;
-    }
+  isRoundComplete() {
+    const handsNeeded = this.getHandsThisRound();
+    const currentScores = this.scores[this.currentRound] || [];
+    return currentScores.length === handsNeeded && currentScores.every(score => score !== undefined && score !== null);
+  }
 
-    getScoresForRound(round) {
-        return this.scores[round] || [];
+  advanceRound() {
+    if (this.isRoundComplete() && !this.isGameOver()) {
+      this.currentRound++;
+      return true;
     }
+    return false;
+  }
+
+  isGameOver() {
+    return this.currentRound > this.maxRounds;
+  }
 }
+
+module.exports = RoundManager;
