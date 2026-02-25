@@ -1,20 +1,28 @@
 .score-table {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-  gap: 10px;
   margin: 20px 0;
   font-family: Arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
 }
 
 .score-header {
+  display: grid;
+  grid-template-columns: 100px repeat(4, 1fr) 100px;
+  gap: 0;
   font-weight: bold;
   background-color: #f0f0f0;
+}
+
+.score-header > div {
   padding: 10px;
   text-align: center;
+  border: 1px solid #ddd;
 }
 
 .score-row {
-  display: contents;
+  display: grid;
+  grid-template-columns: 100px repeat(4, 1fr) 100px;
+  gap: 0;
 }
 
 .score-cell {
@@ -38,7 +46,13 @@
 }
 
 @media (max-width: 600px) {
-  .score-table {
-    grid-template-columns: 1fr;
+  .score-header,
+  .score-row {
+    grid-template-columns: 80px repeat(4, 1fr) 80px;
+    font-size: 0.9em;
+  }
+  
+  .score-cell {
+    padding: 8px 4px;
   }
 }
