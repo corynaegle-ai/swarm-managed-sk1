@@ -3,6 +3,9 @@
 // Import bid collection functions (assuming they exist in js/bidding.js)
 import { initializeBidding, handleBidSubmission } from './bidding.js';
 
+// Constants
+const MAX_BID = 10;
+
 // Game state structure
 let gameState = {
   round: 1,
@@ -39,6 +42,14 @@ function initGame() {
   nextPhaseBtn.addEventListener('click', transitionToNextPhase);
 }
 
+// Initialize setup phase
+function initializeSetupPhase() {
+  // Perform any setup tasks here (e.g., initialize players)
+  // Then transition to bidding phase
+  gameState.phase = 'bidding';
+  initializeBiddingPhase();
+}
+
 // Initialize bidding phase
 function initializeBiddingPhase() {
   try {
@@ -63,22 +74,22 @@ function handleBidFormSubmission(event) {
   event.preventDefault();
 
   const bidValue = parseInt(bidInput.value);
-  if (isNaN(bidValue) || bidValue < 0 || bidValue > 10) { // Assume max bid is 10 for validity
-    alert('Please enter a valid bid (0-10).');
+  if (isNaN(bidValue) || bidValue < 0 || bidValue > MAX_BID) {
+    alert(`Please enter a valid bid (0-${MAX_BID}).`);
     return;
   }
 
   try {
     const result = handleBidSubmission(gameState, bidValue);
-    if (!result || typeof result.success !== 'boolean' || !result.playerId) {
-      throw new Error('Invalid response from handleBidSubmission');
+    if (!result || typeof result !== 'object' || typeof result.success !== 'boolean' || typeof result.playerId !== 'string' || (result.success && typeof result.bid !== 'number')) {
+      throw new Error('Invalid response structure from handleBidSubmission');
     }
     if (result.success) {
       bidInput.value = '';
       updateGameStateWithBid(result);
       checkIfBiddingComplete();
     } else {
-      alert(result.message);
+      alert(result.message || 'Bid submission failed.');
     }
   } catch (error) {
     console.error('Bid submission error:', error);
@@ -99,20 +110,20 @@ function updateGameStateWithBid(result) {
 function checkIfBiddingComplete() {
   const allPlayersBid = gameState.players.every(player => {
     const bid = gameState.bids[player.id];
-    return typeof bid === 'number' && bid >= 0 && bid <= 10; // Validate bid validity
+    return typeof bid === 'number' && bid >= 0 && bid <= MAX_BID;
   });
   if (allPlayersBid) {
     statusDisplay.textContent = 'All valid bids collected. Ready to proceed to scoring.';
     nextPhaseBtn.style.display = 'block';
   } else {
-    statusDisplay.textContent = `Valid bids submitted: ${Object.keys(gameState.bids).filter(id => typeof gameState.bids[id] === 'number' && gameState.bids[id] >= 0 && gameState.bids[id] <= 10).length}/${gameState.players.length}`;
+    statusDisplay.textContent = `Valid bids submitted: ${Object.keys(gameState.bids).filter(id => typeof gameState.bids[id] === 'number' && gameState.bids[id] >= 0 && gameState.bids[id] <= MAX_BID).length}/${gameState.players.length}`;
   }
 }
 
 // Transition to next phase
 function transitionToNextPhase() {
   if (gameState.phase === 'bidding') {
-    const validBidsCount = Object.keys(gameState.bids).filter(id => typeof gameState.bids[id] === 'number' && gameState.bids[id] >= 0 && gameState.bids[id] <= 10).length;
+    const validBidsCount = Object.keys(gameState.bids).filter(id => typeof gameState.bids[id] === 'number' && gameState.bids[id] >= 0 && gameState.bids[id] <= MAX_BID).length;
     if (validBidsCount !== gameState.players.length) {
       alert('Cannot proceed until all valid bids are collected.');
       return;
@@ -146,4 +157,4 @@ function startNewRound() {
 document.addEventListener('DOMContentLoaded', initGame);
 
 // Export for potential use
-export { gameState, startNewRound };
+export { gameState, startNewRound, transitionToNextPhase };
