@@ -7,7 +7,7 @@ class GameApp {
     constructor() {
         this.phaseManager = new GamePhaseManager();
         this.currentPhase = this.phaseManager.getCurrentPhase();
-        this.gameState = {}; // Placeholder for existing game state
+        this.gameState = { currentRound: 1, readyForPhaseChange: true }; // Initialize with default values for integration
         this.initializeUI();
         this.updatePhaseDisplay();
         this.renderPhaseButtons();
@@ -28,8 +28,13 @@ class GameApp {
 
     updatePhaseDisplay() {
         // Update the phase indicator with current phase/round
-        const phaseInfo = this.phaseManager.getPhaseInfo();
-        this.phaseDisplayElement.textContent = `Phase: ${phaseInfo.name}, Round: ${phaseInfo.round || 'N/A'}`;
+        try {
+            const phaseInfo = this.phaseManager.getPhaseInfo();
+            this.phaseDisplayElement.textContent = `Phase: ${phaseInfo.name}, Round: ${phaseInfo.round || 'N/A'}`;
+        } catch (error) {
+            console.error('Error updating phase display:', error);
+            this.phaseDisplayElement.textContent = 'Phase: Unknown';
+        }
         // AC-001: Phase indicator updates when phase changes
     }
 
@@ -38,13 +43,18 @@ class GameApp {
         this.phaseButtonsElement.innerHTML = '';
         
         // Get appropriate buttons for current phase
-        const buttons = this.phaseManager.getAvailableActions();
-        buttons.forEach(action => {
-            const button = document.createElement('button');
-            button.textContent = action.label;
-            button.addEventListener('click', () => this.handlePhaseAdvance(action.id));
-            this.phaseButtonsElement.appendChild(button);
-        });
+        try {
+            const buttons = this.phaseManager.getAvailableActions();
+            buttons.forEach(action => {
+                const button = document.createElement('button');
+                button.textContent = action.label;
+                button.addEventListener('click', () => this.handlePhaseAdvance(action.id));
+                this.phaseButtonsElement.appendChild(button);
+            });
+        } catch (error) {
+            console.error('Error rendering phase buttons:', error);
+            this.phaseButtonsElement.innerHTML = '<p>Error loading buttons</p>';
+        }
         // AC-002: Only appropriate buttons shown for current phase
     }
 
@@ -64,21 +74,26 @@ class GameApp {
         this.currentPhase = this.phaseManager.getCurrentPhase();
         this.updatePhaseDisplay();
         this.renderPhaseButtons();
-        if (this.phaseManager.isGameCompleted()) {
-            this.handleGameCompletion();
+        try {
+            if (this.phaseManager.isGameCompleted()) {
+                this.handleGameCompletion();
+            }
+        } catch (error) {
+            console.error('Error checking game completion:', error);
         }
     }
 
     validatePhaseTransition(actionId) {
         // Example validation: Check if required conditions are met
-        // Integrate with existing game logic
-        return this.gameState.readyForPhaseChange || false;
+        // Integrate with existing game logic - default to true for basic functionality
+        return this.gameState.readyForPhaseChange !== false; // Allow unless explicitly false
     }
 
     updateGameState(actionId) {
-        // Placeholder: Update existing game state based on action
-        // e.g., this.gameState.currentRound++;
+        // Update existing game state based on action
         this.gameState.lastAction = actionId;
+        // Integrate with phase: increment round on advance
+        this.gameState.currentRound = this.phaseManager.getCurrentPhase().round || (this.gameState.currentRound + 1);
     }
 
     handleGameCompletion() {
