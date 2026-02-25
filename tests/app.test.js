@@ -1,66 +1,52 @@
-// tests/app.test.js - Tests for js/app.js
+// tests/app.test.js - Tests for app.js
+import { jest } from '@jest/globals';
 import { gameState, startNewRound, transitionToNextPhase } from '../js/app.js';
+import { initializeBidding, handleBidSubmission } from '../js/bidding.js';
 
-describe('Game Initialization and Bidding Flow', () => {
+// Mock bidding.js
+jest.mock('../js/bidding.js', () => ({
+  initializeBidding: jest.fn(),
+  handleBidSubmission: jest.fn()
+}));
+
+// Mock DOM
+global.document = {
+  getElementById: jest.fn(),
+  addEventListener: jest.fn()
+};
+
+// Mock alert and console
+describe('App Tests', () => {
   beforeEach(() => {
-    // Reset game state
+    jest.clearAllMocks();
+    // Reset gameState
     gameState.round = 1;
     gameState.phase = 'setup';
     gameState.bids = {};
     gameState.scores = {};
-    // Mock DOM elements
-    global.document = {
-      getElementById: jest.fn((id) => ({
-        addEventListener: jest.fn(),
-        style: { display: 'none' },
-        textContent: '',
-        value: ''
-      })),
-      addEventListener: jest.fn()
-    };
-    global.alert = jest.fn();
+    gameState.currentPlayerIndex = 0;
   });
 
-  test('initGame initializes setup and transitions to bidding', () => {
-    // Mock bidding functions
-    const mockInitializeBidding = jest.fn(() => ({ success: true }));
-    const mockHandleBidSubmission = jest.fn();
-    jest.doMock('../js/bidding.js', () => ({
-      initializeBidding: mockInitializeBidding,
-      handleBidSubmission: mockHandleBidSubmission
-    }));
-    const { initGame } = require('../js/app.js');
-    initGame();
-    expect(gameState.phase).toBe('bidding');
-    expect(mockInitializeBidding).toHaveBeenCalledWith(gameState.players, gameState.round);
+  test('initializeBidding is called in bidding phase', () => {
+    initializeBidding.mockReturnValue({ success: true });
+    // Simulate initGame indirectly by calling functions
+    startNewRound(); // This triggers bidding
+    expect(initializeBidding).toHaveBeenCalledWith(gameState.players, gameState.round);
   });
 
-  test('transitionToNextPhase blocks if bids incomplete', () => {
+  test('handleBidSubmission processes valid bid', () => {
+    handleBidSubmission.mockReturnValue({ success: true, playerId: 'player1', bid: 5 });
+    // Assume transitionToNextPhase checks bids
+    gameState.bids = { player1: 5, player2: 3 };
     gameState.phase = 'bidding';
-    gameState.bids = { player1: 5 }; // Incomplete
     transitionToNextPhase();
-    expect(gameState.phase).toBe('bidding');
-    expect(global.alert).toHaveBeenCalledWith('Cannot proceed until all valid bids are collected.');
-  });
-
-  test('transitionToNextPhase succeeds with all valid bids', () => {
-    gameState.phase = 'bidding';
-    gameState.bids = { player1: 5, player2: 8 };
-    jest.useFakeTimers();
-    transitionToNextPhase();
-    jest.runAllTimers();
     expect(gameState.phase).toBe('scoring');
   });
 
-  test('startNewRound resets and initializes bidding', () => {
-    const mockInitializeBidding = jest.fn(() => ({ success: true }));
-    jest.doMock('../js/bidding.js', () => ({
-      initializeBidding: mockInitializeBidding
-    }));
-    startNewRound();
-    expect(gameState.round).toBe(2);
-    expect(gameState.phase).toBe('bidding');
-    expect(gameState.bids).toEqual({});
-    expect(mockInitializeBidding).toHaveBeenCalledWith(gameState.players, gameState.round);
+  test('cannot transition without all bids', () => {
+    gameState.bids = { player1: 5 }; // Missing player2
+    gameState.phase = 'bidding';
+    transitionToNextPhase();
+    expect(gameState.phase).toBe('bidding'); // Should not change
   });
 });

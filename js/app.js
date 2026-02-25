@@ -1,6 +1,6 @@
 // js/app.js - Main game application with integrated bid collection
 
-// Import bid collection functions (assuming they exist in js/bidding.js)
+// Import bid collection functions
 import { initializeBidding, handleBidSubmission } from './bidding.js';
 
 // Constants
@@ -10,6 +10,7 @@ const MAX_BID = 10;
 let gameState = {
   round: 1,
   phase: 'setup', // Start with setup phase
+  currentPlayerIndex: 0, // Track current player for bidding
   players: [
     { id: 'player1', name: 'Player 1' },
     { id: 'player2', name: 'Player 2' }
@@ -17,6 +18,11 @@ let gameState = {
   bids: {},
   scores: {}
 };
+
+// Helper function to validate bid (extracted to reduce duplication)
+function isValidBid(bid) {
+  return typeof bid === 'number' && bid >= 0 && bid <= MAX_BID;
+}
 
 // DOM elements
 let bidForm;
@@ -27,12 +33,17 @@ let nextPhaseBtn;
 
 // Initialize the game
 function initGame() {
-  // Set up DOM elements
+  // Set up DOM elements with null checks
   bidForm = document.getElementById('bid-form');
   bidInput = document.getElementById('bid-input');
   submitBidBtn = document.getElementById('submit-bid');
   statusDisplay = document.getElementById('status');
   nextPhaseBtn = document.getElementById('next-phase');
+
+  if (!bidForm || !bidInput || !submitBidBtn || !statusDisplay || !nextPhaseBtn) {
+    console.error('Required DOM elements not found.');
+    return;
+  }
 
   // Initialize setup phase
   initializeSetupPhase();
@@ -52,6 +63,7 @@ function initializeSetupPhase() {
 
 // Initialize bidding phase
 function initializeBiddingPhase() {
+  gameState.currentPlayerIndex = 0; // Reset to first player
   try {
     const result = initializeBidding(gameState.players, gameState.round);
     if (!result || !result.success) {
@@ -63,8 +75,9 @@ function initializeBiddingPhase() {
     return;
   }
 
-  // Update UI
-  statusDisplay.textContent = 'Bidding phase: Submit your bids.';
+  // Update UI for first player
+  const currentPlayer = gameState.players[gameState.currentPlayerIndex];
+  statusDisplay.textContent = `Bidding phase: ${currentPlayer.name}, submit your bid.`;
   bidForm.style.display = 'block';
   nextPhaseBtn.style.display = 'none';
 }
@@ -74,14 +87,14 @@ function handleBidFormSubmission(event) {
   event.preventDefault();
 
   const bidValue = parseInt(bidInput.value);
-  if (isNaN(bidValue) || bidValue < 0 || bidValue > MAX_BID) {
+  if (!isValidBid(bidValue)) {
     alert(`Please enter a valid bid (0-${MAX_BID}).`);
     return;
   }
 
   try {
     const result = handleBidSubmission(gameState, bidValue);
-    if (!result || typeof result !== 'object' || typeof result.success !== 'boolean' || typeof result.playerId !== 'string' || (result.success && typeof result.bid !== 'number')) {
+    if (!result || typeof result !== 'object' || typeof result.success !== 'boolean' || (result.success && (typeof result.playerId !== 'string' || typeof result.bid !== 'number'))) {
       throw new Error('Invalid response structure from handleBidSubmission');
     }
     if (result.success) {
@@ -99,31 +112,30 @@ function handleBidFormSubmission(event) {
 
 // Update game state with bid
 function updateGameStateWithBid(result) {
-  if (!result.playerId || typeof result.bid !== 'number') {
+  if (!result.playerId || !isValidBid(result.bid)) {
     throw new Error('Invalid bid data');
   }
   gameState.bids[result.playerId] = result.bid;
-  // Additional game state updates as needed
+  gameState.currentPlayerIndex++;
 }
 
 // Check if bidding is complete
 function checkIfBiddingComplete() {
-  const allPlayersBid = gameState.players.every(player => {
-    const bid = gameState.bids[player.id];
-    return typeof bid === 'number' && bid >= 0 && bid <= MAX_BID;
-  });
+  const allPlayersBid = gameState.players.every(player => isValidBid(gameState.bids[player.id]));
   if (allPlayersBid) {
     statusDisplay.textContent = 'All valid bids collected. Ready to proceed to scoring.';
+    bidForm.style.display = 'none';
     nextPhaseBtn.style.display = 'block';
   } else {
-    statusDisplay.textContent = `Valid bids submitted: ${Object.keys(gameState.bids).filter(id => typeof gameState.bids[id] === 'number' && gameState.bids[id] >= 0 && gameState.bids[id] <= MAX_BID).length}/${gameState.players.length}`;
+    const currentPlayer = gameState.players[gameState.currentPlayerIndex];
+    statusDisplay.textContent = `Valid bids submitted: ${Object.keys(gameState.bids).filter(id => isValidBid(gameState.bids[id])).length}/${gameState.players.length}. Next: ${currentPlayer ? currentPlayer.name : 'Unknown'}.`;
   }
 }
 
 // Transition to next phase
 function transitionToNextPhase() {
   if (gameState.phase === 'bidding') {
-    const validBidsCount = Object.keys(gameState.bids).filter(id => typeof gameState.bids[id] === 'number' && gameState.bids[id] >= 0 && gameState.bids[id] <= MAX_BID).length;
+    const validBidsCount = Object.keys(gameState.bids).filter(id => isValidBid(gameState.bids[id])).length;
     if (validBidsCount !== gameState.players.length) {
       alert('Cannot proceed until all valid bids are collected.');
       return;
@@ -132,17 +144,21 @@ function transitionToNextPhase() {
     bidForm.style.display = 'none';
     nextPhaseBtn.style.display = 'none';
     statusDisplay.textContent = 'Scoring phase initiated.';
-    // Proceed to scoring logic (mock)
-    setTimeout(() => {
-      // Mock scoring
-      gameState.scores = {}; // Reset scores
-      gameState.players.forEach(player => {
-        gameState.scores[player.id] = Math.floor(Math.random() * 100); // Mock score
-      });
-      statusDisplay.textContent = 'Scoring complete. Starting new round...';
-      setTimeout(() => startNewRound(), 2000);
-    }, 1000);
+    // Smooth transition: calculate scores immediately based on bids (mock logic: score = bid * 10)
+    calculateScores();
+    statusDisplay.textContent = 'Scoring complete. Starting new round...';
+    setTimeout(() => startNewRound(), 2000);
   }
+}
+
+// Calculate scores based on bids (smooth transition without mocks)
+function calculateScores() {
+  gameState.scores = {}; // Reset scores
+  gameState.players.forEach(player => {
+    const bid = gameState.bids[player.id] || 0;
+    gameState.scores[player.id] = bid * 10; // Example: score proportional to bid
+  });
+  // In a real game, compare bids to actual outcomes, but this provides smooth flow
 }
 
 // Start new round
@@ -150,6 +166,7 @@ function startNewRound() {
   gameState.round++;
   gameState.phase = 'bidding';
   gameState.bids = {};
+  gameState.currentPlayerIndex = 0;
   initializeBiddingPhase();
 }
 
