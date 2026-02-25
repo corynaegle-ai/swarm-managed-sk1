@@ -1,0 +1,65 @@
+.phase-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    margin: 20px auto;
+    max-width: 800px;
+    background-color: #f9f9f9;
+}
+
+.phase-display {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.phase-display h2 {
+    margin: 0;
+    font-size: 1.5em;
+}
+
+.phase-buttons {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+/* Visual states for phases */
+.phase-indicator[data-current-phase="setup"] {
+    border-color: #007bff; /* Blue for setup */
+    background-color: #e7f3ff;
+}
+
+.phase-indicator[data-current-phase="bidding"] {
+    border-color: #28a745; /* Green for bidding */
+    background-color: #d4edda;
+}
+
+.phase-indicator[data-current-phase="scoring"] {
+    border-color: #ffc107; /* Yellow for scoring */
+    background-color: #fff3cd;
+}
+
+.phase-indicator[data-current-phase="complete"] {
+    border-color: #dc3545; /* Red for complete */
+    background-color: #f8d7da;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+    .phase-indicator {
+        padding: 15px;
+        margin: 10px;
+    }
+    .phase-display h2 {
+        font-size: 1.2em;
+    }
+    .phase-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+}
