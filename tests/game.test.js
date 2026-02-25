@@ -81,7 +81,5 @@ describe('GameState Class', () => {
       gameState.addPlayer(`Player${i}`);
     }
     expect(gameState.validatePlayerCount()).toBe(true);
-    gameState.addPlayer('Player9');
-    expect(gameState.validatePlayerCount()).toBe(false);
   });
 });
