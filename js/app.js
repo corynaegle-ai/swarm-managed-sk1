@@ -6,8 +6,11 @@ import { initializeBidding, handleBidSubmission } from './bidding.js';
 // Game state structure
 let gameState = {
   round: 1,
-  phase: 'bidding', // Initial phase is bidding
-  players: [],
+  phase: 'setup', // Start with setup phase
+  players: [
+    { id: 'player1', name: 'Player 1' },
+    { id: 'player2', name: 'Player 2' }
+  ], // Simulated players
   bids: {},
   scores: {}
 };
@@ -28,20 +31,26 @@ function initGame() {
   statusDisplay = document.getElementById('status');
   nextPhaseBtn = document.getElementById('next-phase');
 
-  // Initialize bidding phase
-  initializeBiddingPhase();
+  // Initialize setup phase
+  initializeSetupPhase();
 
   // Add event listeners
   bidForm.addEventListener('submit', handleBidFormSubmission);
-  nextPhaseBtn.addEventListener('click', transitionToScoring);
+  nextPhaseBtn.addEventListener('click', transitionToNextPhase);
 }
 
 // Initialize bidding phase
 function initializeBiddingPhase() {
-  if (gameState.phase !== 'bidding') return;
-
-  // Call initializeBidding to set up bid collection
-  initializeBidding(gameState.players, gameState.round);
+  try {
+    const result = initializeBidding(gameState.players, gameState.round);
+    if (!result || !result.success) {
+      throw new Error('Failed to initialize bidding');
+    }
+  } catch (error) {
+    console.error('Bidding initialization error:', error);
+    statusDisplay.textContent = 'Error: Could not initialize bidding.';
+    return;
+  }
 
   // Update UI
   statusDisplay.textContent = 'Bidding phase: Submit your bids.';
@@ -54,52 +63,75 @@ function handleBidFormSubmission(event) {
   event.preventDefault();
 
   const bidValue = parseInt(bidInput.value);
-  if (isNaN(bidValue) || bidValue < 0) {
-    alert('Please enter a valid bid.');
+  if (isNaN(bidValue) || bidValue < 0 || bidValue > 10) { // Assume max bid is 10 for validity
+    alert('Please enter a valid bid (0-10).');
     return;
   }
 
-  // Handle bid submission
-  const result = handleBidSubmission(gameState, bidValue);
-  if (result.success) {
-    bidInput.value = '';
-    updateGameStateWithBid(result);
-    checkIfBiddingComplete();
-  } else {
-    alert(result.message);
+  try {
+    const result = handleBidSubmission(gameState, bidValue);
+    if (!result || typeof result.success !== 'boolean' || !result.playerId) {
+      throw new Error('Invalid response from handleBidSubmission');
+    }
+    if (result.success) {
+      bidInput.value = '';
+      updateGameStateWithBid(result);
+      checkIfBiddingComplete();
+    } else {
+      alert(result.message);
+    }
+  } catch (error) {
+    console.error('Bid submission error:', error);
+    alert('Error processing bid.');
   }
 }
 
 // Update game state with bid
 function updateGameStateWithBid(result) {
+  if (!result.playerId || typeof result.bid !== 'number') {
+    throw new Error('Invalid bid data');
+  }
   gameState.bids[result.playerId] = result.bid;
   // Additional game state updates as needed
 }
 
 // Check if bidding is complete
 function checkIfBiddingComplete() {
-  const allPlayersBid = gameState.players.every(player => gameState.bids[player.id] !== undefined);
+  const allPlayersBid = gameState.players.every(player => {
+    const bid = gameState.bids[player.id];
+    return typeof bid === 'number' && bid >= 0 && bid <= 10; // Validate bid validity
+  });
   if (allPlayersBid) {
-    statusDisplay.textContent = 'All bids collected. Ready to proceed to scoring.';
+    statusDisplay.textContent = 'All valid bids collected. Ready to proceed to scoring.';
     nextPhaseBtn.style.display = 'block';
   } else {
-    statusDisplay.textContent = `Bids submitted: ${Object.keys(gameState.bids).length}/${gameState.players.length}`;
+    statusDisplay.textContent = `Valid bids submitted: ${Object.keys(gameState.bids).filter(id => typeof gameState.bids[id] === 'number' && gameState.bids[id] >= 0 && gameState.bids[id] <= 10).length}/${gameState.players.length}`;
   }
 }
 
-// Transition to scoring phase
-function transitionToScoring() {
-  if (Object.keys(gameState.bids).length !== gameState.players.length) {
-    alert('Cannot proceed until all bids are collected.');
-    return;
+// Transition to next phase
+function transitionToNextPhase() {
+  if (gameState.phase === 'bidding') {
+    const validBidsCount = Object.keys(gameState.bids).filter(id => typeof gameState.bids[id] === 'number' && gameState.bids[id] >= 0 && gameState.bids[id] <= 10).length;
+    if (validBidsCount !== gameState.players.length) {
+      alert('Cannot proceed until all valid bids are collected.');
+      return;
+    }
+    gameState.phase = 'scoring';
+    bidForm.style.display = 'none';
+    nextPhaseBtn.style.display = 'none';
+    statusDisplay.textContent = 'Scoring phase initiated.';
+    // Proceed to scoring logic (mock)
+    setTimeout(() => {
+      // Mock scoring
+      gameState.scores = {}; // Reset scores
+      gameState.players.forEach(player => {
+        gameState.scores[player.id] = Math.floor(Math.random() * 100); // Mock score
+      });
+      statusDisplay.textContent = 'Scoring complete. Starting new round...';
+      setTimeout(() => startNewRound(), 2000);
+    }, 1000);
   }
-
-  gameState.phase = 'scoring';
-  bidForm.style.display = 'none';
-  nextPhaseBtn.style.display = 'none';
-  statusDisplay.textContent = 'Scoring phase initiated.';
-  // Proceed to scoring logic (assuming external function)
-  // startScoring(gameState);
 }
 
 // Start new round
