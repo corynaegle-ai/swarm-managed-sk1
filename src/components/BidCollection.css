@@ -1,0 +1,40 @@
+.bid-collection {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.bid-input-group {
+  margin-bottom: 15px;
+}
+
+.bid-input-group label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.bid-input-group input {
+  padding: 8px;
+  width: 100px;
+}
+
+.bid-input-group input.error {
+  border-color: red;
+}
+
+.error-message {
+  color: red;
+  font-size: 0.9em;
+}
+
+button {
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
