@@ -13,6 +13,10 @@ class RoundManager {
     return this.currentRound;
   }
 
+  markScoringComplete() {
+    this.scored = true;
+  }
+
   canAdvanceRound() {
     return this.scored;
   }
