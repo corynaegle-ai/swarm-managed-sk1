@@ -1,6 +1,5 @@
 /* Score Display Styles */
 
-/* Score Table Container */
 #score-display {
     margin-top: 2rem;
     padding: 1.5rem;
@@ -16,10 +15,9 @@
     margin-bottom: 1rem;
 }
 
-/* Score Table - Responsive Grid Layout */
 .score-table {
     display: grid;
-    grid-auto-rows: auto;
+    grid-template-columns: 80px 1fr 1fr 1fr 1fr 80px;
     gap: 0;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -27,11 +25,9 @@
     background-color: #fff;
 }
 
-/* Score Header - Dynamic columns based on player count */
-.score-header {
+#score-header {
     display: grid;
-    grid-auto-columns: 1fr;
-    grid-auto-flow: column;
+    grid-template-columns: 80px 1fr 1fr 1fr 1fr 80px;
     background-color: #2c3e50;
     color: white;
     font-weight: bold;
@@ -40,21 +36,19 @@
     z-index: 10;
 }
 
-.score-header div {
+#score-header > div {
     padding: 1rem;
     text-align: center;
     border-right: 1px solid #34495e;
 }
 
-.score-header div:last-child {
+#score-header > div:last-child {
     border-right: none;
 }
 
-/* Score Row - Dynamic columns matching header */
 .score-row {
     display: grid;
-    grid-auto-columns: 1fr;
-    grid-auto-flow: column;
+    grid-template-columns: 80px 1fr 1fr 1fr 1fr 80px;
     border-bottom: 1px solid #ddd;
     align-items: center;
 }
@@ -63,58 +57,27 @@
     border-bottom: none;
 }
 
-.score-row div {
+.score-cell {
     padding: 0.75rem 1rem;
     text-align: center;
     border-right: 1px solid #eee;
 }
 
-.score-row div:last-child {
+.score-cell:last-child {
     border-right: none;
+    font-weight: 600;
+    color: #27ae60;
 }
 
-/* Current Round Highlight */
+.score-row:nth-child(odd) {
+    background-color: #f5f5f5;
+}
+
 .score-row.current-round {
     background-color: #e8f4f8;
     font-weight: 500;
 }
 
-.score-row.current-round div {
-    background-color: #e8f4f8;
-}
-
-/* Alternating row colors for better readability */
-.score-row:nth-child(odd) {
-    background-color: #f5f5f5;
-}
-
-.score-row:nth-child(odd).current-round {
-    background-color: #e8f4f8;
-}
-
-/* Round column */
-.score-row .round-col {
-    font-weight: 600;
-    color: #2c3e50;
-}
-
-/* Player score cells */
-.score-row .player-score {
-    color: #333;
-}
-
-/* Total column styling */
-.score-row .total-col {
-    font-weight: 600;
-    color: #27ae60;
-    background-color: #ecf0f1;
-}
-
-.score-row.current-round .total-col {
-    background-color: #d4ebf0;
-}
-
-/* Final Rankings Section */
 .final-rankings {
     margin-top: 2rem;
     padding: 1.5rem;
@@ -130,17 +93,13 @@
     margin-bottom: 1rem;
 }
 
-/* Rankings List */
 #rankings-list {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
 }
 
-.ranking-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+#rankings-list > div {
     padding: 1rem;
     background-color: white;
     border-radius: 4px;
@@ -148,166 +107,30 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.ranking-item.first-place {
-    border-left-color: #f39c12;
-    background-color: #fffbf0;
-}
-
-.ranking-item.second-place {
-    border-left-color: #95a5a6;
-    background-color: #f8f9fa;
-}
-
-.ranking-item.third-place {
-    border-left-color: #e67e22;
-    background-color: #fef5f0;
-}
-
-.ranking-position {
-    font-weight: bold;
-    font-size: 1.25rem;
-    color: #2c3e50;
-    min-width: 3rem;
-}
-
-.ranking-position.first-place {
-    color: #f39c12;
-}
-
-.ranking-position.second-place {
-    color: #95a5a6;
-}
-
-.ranking-position.third-place {
-    color: #e67e22;
-}
-
-.ranking-player-name {
-    flex: 1;
-    margin: 0 1rem;
-    font-weight: 500;
-    color: #333;
-}
-
-.ranking-score {
-    font-weight: bold;
-    font-size: 1.1rem;
-    color: #27ae60;
-}
-
-/* Responsive Design */
 @media (max-width: 768px) {
-    .score-table {
+    .score-table,
+    #score-header,
+    .score-row {
+        grid-template-columns: 60px 1fr 1fr 1fr 1fr 60px;
         font-size: 0.9rem;
     }
-
-    .score-header div,
-    .score-row div {
+    
+    .score-cell,
+    #score-header > div {
         padding: 0.5rem 0.75rem;
-    }
-
-    .score-header {
-        font-size: 0.85rem;
-    }
-
-    .final-rankings {
-        padding: 1rem;
-    }
-
-    .ranking-item {
-        padding: 0.75rem;
-        flex-wrap: wrap;
-    }
-
-    .ranking-player-name {
-        margin: 0.25rem 0;
-        width: 100%;
-        order: 2;
-    }
-
-    .ranking-position {
-        min-width: 2rem;
     }
 }
 
 @media (max-width: 480px) {
-    #score-display {
-        padding: 1rem;
-    }
-
-    #score-display h2 {
-        font-size: 1.25rem;
-    }
-
-    .score-header,
+    .score-table,
+    #score-header,
     .score-row {
+        grid-template-columns: 50px 0.9fr 0.9fr 0.9fr 0.9fr 50px;
         font-size: 0.75rem;
     }
-
-    .score-header div,
-    .score-row div {
+    
+    .score-cell,
+    #score-header > div {
         padding: 0.5rem;
     }
-
-    .final-rankings h3 {
-        font-size: 1.1rem;
-    }
-}
-.score-table {
-  margin: 20px 0;
-  font-family: Arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
-
-.score-header {
-  display: grid;
-  grid-template-columns: 100px repeat(4, 1fr) 100px;
-  gap: 0;
-  font-weight: bold;
-  background-color: #f0f0f0;
-}
-
-.score-header > div {
-  padding: 10px;
-  text-align: center;
-  border: 1px solid #ddd;
-}
-
-.score-row {
-  display: grid;
-  grid-template-columns: 100px repeat(4, 1fr) 100px;
-  gap: 0;
-}
-
-.score-cell {
-  padding: 10px;
-  text-align: center;
-  border: 1px solid #ddd;
-}
-
-.current-round {
-  background-color: #ffff99;
-  font-weight: bold;
-}
-
-.final-rankings .score-cell {
-  background-color: #e6f7ff;
-}
-
-.winner {
-  background-color: #d4edda;
-  color: #155724;
-}
-
-@media (max-width: 600px) {
-  .score-header,
-  .score-row {
-    grid-template-columns: 80px repeat(4, 1fr) 80px;
-    font-size: 0.9em;
-  }
-  
-  .score-cell {
-    padding: 8px 4px;
-  }
 }
