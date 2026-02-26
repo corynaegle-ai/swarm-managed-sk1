@@ -1,5 +1,208 @@
 /* Score Display Styles */
 
+/* Score Table Container */
+#score-display {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#score-display h2 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: #333;
+    font-size: 1.5rem;
+}
+
+/* Responsive Score Table using CSS Grid */
+.score-table {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 0;
+    border-collapse: collapse;
+    width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+/* Score Table Header */
+.score-header {
+    display: contents;
+}
+
+.score-header > div {
+    padding: 1rem;
+    background-color: #4a5f8f;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    border-right: 1px solid #ddd;
+}
+
+.score-header > div:last-child {
+    border-right: none;
+}
+
+/* Score Rows */
+#score-rows {
+    display: contents;
+}
+
+.score-row {
+    display: contents;
+}
+
+.score-row > div {
+    padding: 0.875rem;
+    text-align: center;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    background-color: #fff;
+}
+
+.score-row > div:last-child {
+    border-right: none;
+}
+
+/* Highlight Current Round */
+.score-row.current-round > div {
+    background-color: #e8f4f8;
+    font-weight: 600;
+    color: #2c5aa0;
+}
+
+/* Alternate row colors for better readability */
+.score-row:nth-child(odd) > div {
+    background-color: #fafafa;
+}
+
+.score-row.current-round > div {
+    background-color: #e8f4f8;
+}
+
+/* Final Rankings Section */
+.final-rankings {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border: 2px solid #4a5f8f;
+}
+
+.final-rankings h3 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: #333;
+    font-size: 1.3rem;
+    text-align: center;
+}
+
+#rankings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.ranking-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background-color: white;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    justify-content: space-between;
+}
+
+.ranking-position {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+}
+
+.ranking-medal {
+    font-size: 1.5rem;
+    font-weight: bold;
+    min-width: 2.5rem;
+    text-align: center;
+}
+
+.ranking-medal.first {
+    color: #ffd700;
+}
+
+.ranking-medal.second {
+    color: #c0c0c0;
+}
+
+.ranking-medal.third {
+    color: #cd7f32;
+}
+
+.ranking-name {
+    font-weight: 600;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+.ranking-score {
+    font-weight: bold;
+    color: #4a5f8f;
+    font-size: 1.2rem;
+}
+
+/* Responsive Design for Mobile */
+@media (max-width: 768px) {
+    .score-table {
+        grid-template-columns: repeat(3, 1fr);
+        font-size: 0.9rem;
+    }
+
+    .score-header > div,
+    .score-row > div {
+        padding: 0.6rem;
+    }
+
+    #score-display,
+    .final-rankings {
+        padding: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .ranking-item {
+        padding: 0.75rem;
+    }
+
+    .ranking-name {
+        font-size: 1rem;
+    }
+
+    .ranking-score {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .score-table {
+        grid-template-columns: 1fr 1fr;
+        font-size: 0.85rem;
+    }
+
+    .score-header > div,
+    .score-row > div {
+        padding: 0.5rem;
+    }
+
+    .ranking-medal {
+        font-size: 1.2rem;
+        min-width: 2rem;
+    }
+}
+/* Score Display Styles */
+
 #score-display {
     margin-top: 2rem;
     padding: 1.5rem;
