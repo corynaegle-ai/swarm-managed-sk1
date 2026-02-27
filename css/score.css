@@ -17,7 +17,7 @@
 /* Score Table Styles */
 .score-table {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: 100px repeat(4, 1fr) 100px;
     gap: 0;
     background-color: white;
     border: 1px solid #ddd;
@@ -28,25 +28,30 @@
 
 .score-header {
     display: grid;
-    grid-template-columns: 80px repeat(4, 1fr) 100px;
+    grid-template-columns: 100px repeat(4, 1fr) 100px;
     gap: 0;
     background-color: #2c3e50;
     color: white;
     font-weight: 600;
-    padding: 1rem;
+    padding: 0;
     text-align: center;
     border-bottom: 2px solid #34495e;
 }
 
-.score-header div {
-    padding: 0.5rem 0.25rem;
+.score-header .score-cell {
+    padding: 1rem 0.5rem;
+    border-right: 1px solid #34495e;
+}
+
+.score-header .score-cell:last-child {
+    border-right: none;
 }
 
 .score-row {
     display: grid;
-    grid-template-columns: 80px repeat(4, 1fr) 100px;
+    grid-template-columns: 100px repeat(4, 1fr) 100px;
     gap: 0;
-    padding: 0.75rem 1rem;
+    padding: 0;
     border-bottom: 1px solid #eee;
     text-align: center;
     align-items: center;
@@ -66,25 +71,13 @@
     font-weight: 500;
 }
 
-.score-row div {
-    padding: 0.25rem;
+.score-row .score-cell {
+    padding: 0.75rem 0.5rem;
+    border-right: 1px solid #eee;
 }
 
-.score-row .round-label {
-    font-weight: 600;
-    color: #2c3e50;
-}
-
-.score-row .player-score {
-    color: #34495e;
-}
-
-.score-row .total-score {
-    font-weight: 600;
-    color: #2c3e50;
-    background-color: rgba(44, 62, 80, 0.05);
-    border-radius: 3px;
-    padding: 0.5rem 0.25rem;
+.score-row .score-cell:last-child {
+    border-right: none;
 }
 
 /* Final Rankings Styles */
@@ -158,13 +151,12 @@
     .score-header,
     .score-row {
         grid-template-columns: 70px repeat(4, 1fr) 80px;
-        padding: 0.5rem;
-        font-size: 0.9rem;
     }
     
-    .score-header div,
-    .score-row div {
-        padding: 0.25rem 0.1rem;
+    .score-header .score-cell,
+    .score-row .score-cell {
+        padding: 0.5rem 0.25rem;
+        font-size: 0.9rem;
     }
     
     #score-display {
@@ -184,7 +176,11 @@
     .score-header,
     .score-row {
         grid-template-columns: 60px repeat(4, 0.9fr) 70px;
-        padding: 0.4rem;
+    }
+    
+    .score-header .score-cell,
+    .score-row .score-cell {
+        padding: 0.4rem 0.2rem;
         font-size: 0.8rem;
     }
     
@@ -194,344 +190,5 @@
     
     .final-rankings h3 {
         font-size: 1.1rem;
-    }
-}
-/* Score Display Styles */
-
-/* Score Table Container */
-#score-display {
-    margin-top: 2rem;
-    padding: 1.5rem;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-#score-display h2 {
-    margin-top: 0;
-    margin-bottom: 1.5rem;
-    color: #333;
-    font-size: 1.5rem;
-}
-
-/* Responsive Score Table using CSS Grid */
-.score-table {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    gap: 0;
-    border-collapse: collapse;
-    width: 100%;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    overflow: hidden;
-}
-
-/* Score Table Header */
-.score-header {
-    display: contents;
-}
-
-.score-header > div {
-    padding: 1rem;
-    background-color: #4a5f8f;
-    color: white;
-    font-weight: bold;
-    text-align: center;
-    border-right: 1px solid #ddd;
-}
-
-.score-header > div:last-child {
-    border-right: none;
-}
-
-/* Score Rows */
-#score-rows {
-    display: contents;
-}
-
-.score-row {
-    display: contents;
-}
-
-.score-row > div {
-    padding: 0.875rem;
-    text-align: center;
-    border-right: 1px solid #ddd;
-    border-bottom: 1px solid #ddd;
-    background-color: #fff;
-}
-
-.score-row > div:last-child {
-    border-right: none;
-}
-
-/* Highlight Current Round */
-.score-row.current-round > div {
-    background-color: #e8f4f8;
-    font-weight: 600;
-    color: #2c5aa0;
-}
-
-/* Alternate row colors for better readability */
-.score-row:nth-child(odd) > div {
-    background-color: #fafafa;
-}
-
-.score-row.current-round > div {
-    background-color: #e8f4f8;
-}
-
-/* Final Rankings Section */
-.final-rankings {
-    margin-top: 2rem;
-    padding: 1.5rem;
-    border-radius: 8px;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    border: 2px solid #4a5f8f;
-}
-
-.final-rankings h3 {
-    margin-top: 0;
-    margin-bottom: 1.5rem;
-    color: #333;
-    font-size: 1.3rem;
-    text-align: center;
-}
-
-#rankings-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.ranking-item {
-    display: flex;
-    align-items: center;
-    padding: 1rem;
-    background-color: white;
-    border-radius: 6px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    justify-content: space-between;
-}
-
-.ranking-position {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex: 1;
-}
-
-.ranking-medal {
-    font-size: 1.5rem;
-    font-weight: bold;
-    min-width: 2.5rem;
-    text-align: center;
-}
-
-.ranking-medal.first {
-    color: #ffd700;
-}
-
-.ranking-medal.second {
-    color: #c0c0c0;
-}
-
-.ranking-medal.third {
-    color: #cd7f32;
-}
-
-.ranking-name {
-    font-weight: 600;
-    color: #333;
-    font-size: 1.1rem;
-}
-
-.ranking-score {
-    font-weight: bold;
-    color: #4a5f8f;
-    font-size: 1.2rem;
-}
-
-/* Responsive Design for Mobile */
-@media (max-width: 768px) {
-    .score-table {
-        grid-template-columns: repeat(3, 1fr);
-        font-size: 0.9rem;
-    }
-
-    .score-header > div,
-    .score-row > div {
-        padding: 0.6rem;
-    }
-
-    #score-display,
-    .final-rankings {
-        padding: 1rem;
-        margin-top: 1.5rem;
-    }
-
-    .ranking-item {
-        padding: 0.75rem;
-    }
-
-    .ranking-name {
-        font-size: 1rem;
-    }
-
-    .ranking-score {
-        font-size: 1.1rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .score-table {
-        grid-template-columns: 1fr 1fr;
-        font-size: 0.85rem;
-    }
-
-    .score-header > div,
-    .score-row > div {
-        padding: 0.5rem;
-    }
-
-    .ranking-medal {
-        font-size: 1.2rem;
-        min-width: 2rem;
-    }
-}
-/* Score Display Styles */
-
-#score-display {
-    margin-top: 2rem;
-    padding: 1.5rem;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-#score-display h2 {
-    margin-top: 0;
-    color: #333;
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-}
-
-.score-table {
-    display: grid;
-    grid-template-columns: 80px 1fr 1fr 1fr 1fr 80px;
-    gap: 0;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    overflow: hidden;
-    background-color: #fff;
-}
-
-#score-header {
-    display: grid;
-    grid-template-columns: 80px 1fr 1fr 1fr 1fr 80px;
-    background-color: #2c3e50;
-    color: white;
-    font-weight: bold;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
-
-#score-header > div {
-    padding: 1rem;
-    text-align: center;
-    border-right: 1px solid #34495e;
-}
-
-#score-header > div:last-child {
-    border-right: none;
-}
-
-.score-row {
-    display: grid;
-    grid-template-columns: 80px 1fr 1fr 1fr 1fr 80px;
-    border-bottom: 1px solid #ddd;
-    align-items: center;
-}
-
-.score-row:last-child {
-    border-bottom: none;
-}
-
-.score-cell {
-    padding: 0.75rem 1rem;
-    text-align: center;
-    border-right: 1px solid #eee;
-}
-
-.score-cell:last-child {
-    border-right: none;
-    font-weight: 600;
-    color: #27ae60;
-}
-
-.score-row:nth-child(odd) {
-    background-color: #f5f5f5;
-}
-
-.score-row.current-round {
-    background-color: #e8f4f8;
-    font-weight: 500;
-}
-
-.final-rankings {
-    margin-top: 2rem;
-    padding: 1.5rem;
-    background-color: #f0f8ff;
-    border-radius: 8px;
-    border-left: 4px solid #27ae60;
-}
-
-.final-rankings h3 {
-    margin-top: 0;
-    color: #2c3e50;
-    font-size: 1.25rem;
-    margin-bottom: 1rem;
-}
-
-#rankings-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-#rankings-list > div {
-    padding: 1rem;
-    background-color: white;
-    border-radius: 4px;
-    border-left: 4px solid #3498db;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-@media (max-width: 768px) {
-    .score-table,
-    #score-header,
-    .score-row {
-        grid-template-columns: 60px 1fr 1fr 1fr 1fr 60px;
-        font-size: 0.9rem;
-    }
-    
-    .score-cell,
-    #score-header > div {
-        padding: 0.5rem 0.75rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .score-table,
-    #score-header,
-    .score-row {
-        grid-template-columns: 50px 0.9fr 0.9fr 0.9fr 0.9fr 50px;
-        font-size: 0.75rem;
-    }
-    
-    .score-cell,
-    #score-header > div {
-        padding: 0.5rem;
     }
 }
