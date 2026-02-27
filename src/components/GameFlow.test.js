@@ -1,5 +1,6 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import GameFlow from './GameFlow';
 
 describe('GameFlow', () => {
@@ -45,15 +46,21 @@ describe('GameFlow', () => {
       expect(screen.getByText(`Current Phase: SETUP (Round ${round})`)).toBeInTheDocument();
       
       // Setup -> Bidding
-      fireEvent.click(screen.getByText('Start Bidding'));
+      act(() => {
+        fireEvent.click(screen.getByText('Start Bidding'));
+      });
       expect(screen.getByText(`Current Phase: BIDDING (Round ${round})`)).toBeInTheDocument();
       
       // Bidding -> Scoring
-      fireEvent.click(screen.getByText('Submit Bid'));
+      act(() => {
+        fireEvent.click(screen.getByText('Submit Bid'));
+      });
       expect(screen.getByText(`Current Phase: SCORING (Round ${round})`)).toBeInTheDocument();
       
       // Scoring -> Next Round Setup or Game Complete
-      fireEvent.click(screen.getByText('Calculate Scores'));
+      act(() => {
+        fireEvent.click(screen.getByText('Calculate Scores'));
+      });
       if (round < 10) {
         expect(screen.getByText(`Current Phase: SETUP (Round ${round + 1})`)).toBeInTheDocument();
       } else {

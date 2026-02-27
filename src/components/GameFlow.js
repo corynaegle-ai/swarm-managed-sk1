@@ -27,7 +27,7 @@ function GameFlow() {
         <button
           onClick={() => {
             if (currentRound < MAX_ROUNDS) {
-              setCurrentRound(currentRound + 1);
+              setCurrentRound(prev => prev + 1);
               setCurrentPhase(PHASES.SETUP);
             } else {
               setCurrentPhase(PHASES.COMPLETE);
